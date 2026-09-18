@@ -7,14 +7,14 @@ Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Univ
 
 ---
 
-## 📌 Sobre o projeto
+## ⁉️ Sobre o projeto
 
 Este repositório contém a implementação da **Parte 1 do Projeto de Compiladores**, cujo objetivo é aplicar técnicas fundamentais de construção de compiladores por meio da implementação das duas primeiras etapas de um compilador para uma versão simplificada da linguagem Pascal, denominada **micro-Pascal**.
 
 Nesta primeira etapa, o projeto contempla:
 
-- 🔎 **Analisador Léxico (Lexer)**
-- 🌳 **Analisador Sintático (Parser)**
+- 🔆 **Analisador Léxico (Lexer)**
+- 🔆 **Analisador Sintático (Parser)**
 
 As demais etapas do compilador serão desenvolvidas na **Parte 2** do projeto.
 
@@ -548,20 +548,7 @@ O **Lexer** transforma a sequência de caracteres do código-fonte em tokens. Em
 > **Parte 1:** Analisador Léxico + Analisador Sintático  
 > **Parte 2:** Demais etapas do compilador — serão adicionadas posteriormente.
 
-Este README documenta exclusivamente os requisitos e conceitos correspondentes à **Parte 1** do projeto. A documentação da Parte 2 será incorporada posteriormente, mantendo a separação entre as etapas do desenvolvimento.
-
----
-
-## 🏛️ Informações acadêmicas
-
-| Informação | Detalhe |
-|---|---|
-| **Instituição** | Universidade Católica de Pernambuco |
-| **Disciplina** | Construção de Compiladores |
-| **Projeto** | Projeto de Compiladores — Primeira Parte |
-| **Professor** | Robson Lins |
-| **Linguagem de implementação** | C/C++ |
-| **Linguagem analisada** | micro-Pascal |
+Este README documenta exclusivamente os requisitos e conceitos correspondentes à **Parte 1** do projeto. A documentação da Parte 2 será incorporada posteriormente, mantendo a separação entre as etapas do desenvolvimento...
 
 ---
 
