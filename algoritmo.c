@@ -3,133 +3,91 @@
 #include <ctype.h>
 #include "define.h"
 
-
 int proximo_token(void){
 
     while(isspace(entrada[posicao])){
         posicao += 1;
     }
 
-
     if(entrada[posicao] == '\0'){
-
         printf("FIM\n");
-
         return FIM;
     }
 
-
     if(isalpha(entrada[posicao])){
-
         posicao += 1;
-
         while(isalnum(entrada[posicao])){
             posicao += 1;
         }
-
         printf("IDENT\n");
-
         return IDENT;
     }
 
-
     if(isdigit(entrada[posicao])){
-
         posicao += 1;
-
         while(isdigit(entrada[posicao])){
             posicao += 1;
         }
-
         printf("NUMERO\n");
-
         return NUMERO;
     }
 
-
     if(entrada[posicao] == '+'){
-
         posicao += 1;
-
         printf("MAIS\n");
-
         return MAIS;
     }
 
-
     if(entrada[posicao] == '*'){
-
         posicao += 1;
-
         if(entrada[posicao] == '*'){
-
             posicao += 1;
-
             printf("POTENCIA\n");
-
             return POTENCIA;
         }
-
         printf("MULT\n");
-
         return MULT;
     }
 
-
     if(entrada[posicao] == '('){
-
         posicao += 1;
-
         printf("ABRE_PAR\n");
-
         return ABRE_PAR;
     }
 
-
     if(entrada[posicao] == ')'){
-
         posicao += 1;
-
         printf("FECHA_PAR\n");
-
         return FECHA_PAR;
     }
 
-
     erro_lexico(entrada[posicao]);
-
     return FIM;
 }
 
+// ====================================== MÉTODOS
 
 void obtenha_simbolo(void){
-
     simbolo_lido = proximo_token();
 }
 
-
 void erro(const char *mensagem){
-
     int i;
-
     for(i = 0; mensagem[i] != '\0'; i += 1){
         printf("%c", mensagem[i]);
     }
-
     printf("\n");
-
     exit(1);
 }
 
 
 void erro_lexico(char caractere){
-
     printf("Erro lexico: caractere '%c' invalido\n",
            caractere);
-
     exit(1);
 }
 
+// ====================================== EXPRESSÕES
 
 void expr(void){
 
