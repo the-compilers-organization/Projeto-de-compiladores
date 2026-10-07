@@ -208,13 +208,15 @@ Responsável por iniciar e coordenar a execução do analisador.
 
 O arquivo:
 
-1. recebe o código-fonte;
-2. armazena o código na entrada;
-3. inicia a análise léxica;
+1. recebe o código-fonte linha por linha;
+2. armazena o código no vetor `entrada`;
+3. utiliza `end.` no final de uma linha como sinal de término da digitação;
 4. solicita ao Lexer o primeiro token;
 5. inicia o Parser através da função `programa()`;
 6. verifica se toda a entrada foi analisada;
 7. informa se o programa está sintaticamente válido ou se ocorreu algum erro.
+
+A leitura é realizada com `fgets()`. Dessa forma, o usuário pode pressionar **Enter** normalmente ao final de cada linha. Quando a última linha do programa termina em `end.`, basta pressionar **Enter uma única vez** para encerrar a digitação e iniciar a análise. Não é necessário utilizar .
 
 O `main.c`, portanto, funciona como ponto de integração entre o **Lexer** e o **Parser**.
 
@@ -1216,22 +1218,28 @@ Digite o programa MicroPascal:
 
 Em seguida, digite o código micro-Pascal que deseja analisar.
 
-> ⚠️ **Importante:** o analisador primeiro recebe todo o código-fonte e somente depois inicia a análise léxica e sintática.
+> ⚠️ **Importante:** o analisador primeiro recebe o código-fonte completo e somente depois inicia a análise léxica e sintática.
 
-Depois de terminar de digitar o código, no **PowerShell/Windows**, é necessário:
+O código pode possuir várias linhas. A `main.c` utiliza `fgets()` para receber uma linha de cada vez e armazena todas elas no vetor `entrada`.
 
-1. pressionar **Enter** após a última linha do código;
-2. pressionar **Ctrl + Z** para sinalizar o fim da entrada (`EOF`);
-3. pressionar **Enter** novamente.
+Durante a digitação, pressione **Enter** normalmente ao final de cada linha.
+
+A leitura é encerrada quando uma linha termina com:
+
+```pascal
+end.
+```
+
+Depois de digitar `end.`, pressione **Enter uma única vez**. O programa encerra a leitura e inicia o Lexer e o Parser.
 
 Ou seja:
 
 ```text
 Código MicroPascal
         ↓
-      Enter
+digitação linha por linha
         ↓
-    Ctrl + Z
+      end.
         ↓
       Enter
         ↓
@@ -1240,8 +1248,7 @@ Código MicroPascal
 Resultado da análise
 ```
 
-> `EOF` significa **End Of File** (fim do arquivo/entrada).  
-> Não deve ser digitada literalmente a palavra `EOF`.
+> O reconhecimento de `end.` pela `main.c` serve apenas para indicar que a digitação do código-fonte terminou. A validação sintática continua sendo responsabilidade do Parser.
 
 ---
 
@@ -1253,7 +1260,17 @@ Execute:
 ./main
 ```
 
-Após digitar o código-fonte, é necessário sinalizar o fim da entrada para que o analisador possa iniciar o processamento.
+A forma de fornecer o código é a mesma utilizada no Windows.
+
+Digite o programa linha por linha. Quando chegar à última linha:
+
+```pascal
+end.
+```
+
+pressione **Enter uma única vez**.
+
+A `main.c` encerra a leitura do código-fonte e inicia automaticamente a análise léxica e sintática.
 
 ---
 
@@ -1273,17 +1290,15 @@ begin
 end.
 ```
 
-No PowerShell/Windows, depois de digitar a última linha:
+Depois de digitar:
 
 ```pascal
 end.
 ```
 
-pressione:
+pressione apenas:
 
 ```text
-Enter
-Ctrl + Z
 Enter
 ```
 
@@ -1300,10 +1315,10 @@ begin
     write(x);
 end.
 
-^Z
+Programa sintaticamente valido.
 ```
 
-Após receber o `EOF`, o programa inicia a análise:
+O fluxo da análise é:
 
 ```text
 Código-fonte completo
@@ -1312,7 +1327,7 @@ Código-fonte completo
         ↓
       Tokens
         ↓
-       Parser
+      Parser
         ↓
 Verificação da gramática
         ↓
@@ -1327,100 +1342,109 @@ Programa sintaticamente valido.
 
 ---
 
-## 9.1 ⚠️ Não digitar `EOF`
+## 9.1 ⌨️ Como a entrada é encerrada
 
-A palavra:
+A `main.c` identifica o término da digitação quando encontra `end.` no final da linha.
 
-```text
-EOF
+A leitura é feita linha por linha utilizando:
+
+```c
+fgets(
+    linha,
+    sizeof(linha),
+    stdin
+)
 ```
 
-**não deve ser digitada após o código.**
+Cada linha recebida é copiada para o vetor:
 
-Por exemplo, não faça:
-
-```text
-program Teste;
-var
-    x : integer;
-begin
-    x := 10;
-    write(x);
-end.
-EOF
+```c
+entrada
 ```
 
-Nesse caso, as letras `E`, `O` e `F` seriam recebidas como parte do próprio código-fonte.
+A leitura continua enquanto o final do programa ainda não tiver sido encontrado.
 
-O `EOF` utilizado pelo programa é um sinal especial utilizado para indicar que não existem mais caracteres para serem lidos.
-
-No PowerShell/Windows, utilize:
-
-```text
-Enter
-Ctrl + Z
-Enter
-```
-
----
-
-## 9.2 🔎 Por que é necessário informar o EOF?
-
-O `main.c` lê o código-fonte até encontrar o final da entrada.
-
-De forma simplificada, a leitura funciona assim:
+De forma simplificada:
 
 ```c
 while(
-    (caractere = getchar()) != EOF &&
-    i < TAM - 1
+    fim == 0 &&
+    fgets(
+        linha,
+        sizeof(linha),
+        stdin
+    ) != NULL
 ){
-    entrada[i] = caractere;
-    i += 1;
+    /*
+     * Armazena a linha em entrada
+     * e verifica se ela termina em "end.".
+     */
 }
 ```
 
-Enquanto `getchar()` não receber `EOF`, o programa entende que ainda podem existir mais caracteres do código-fonte.
-
-Por isso, apenas pressionar **Enter** depois de:
+Quando a linha termina em:
 
 ```pascal
 end.
 ```
 
-não encerra a entrada.
+a variável:
 
-O programa continua aguardando.
-
-Quando o usuário utiliza:
-
-```text
-Ctrl + Z
+```c
+fim
 ```
 
-no PowerShell/Windows, o fim da entrada é sinalizado.
+recebe:
 
-Então o fluxo completo passa a ser:
+```c
+1
+```
+
+Ao retornar à condição do `while`, `fim == 0` passa a ser falso. Por causa da avaliação de curto-circuito do operador `&&`, outro `fgets()` não é executado.
+
+Assim, após digitar `end.`, basta pressionar **Enter uma única vez** para que a leitura seja encerrada.
+
+---
+
+## 9.2 🔎 Por que `end.` encerra a digitação?
+
+A gramática do projeto define o programa como:
 
 ```text
-1. Executar o programa
-        ↓
-2. Digitar todo o código MicroPascal
-        ↓
-3. Pressionar Enter
-        ↓
-4. Pressionar Ctrl + Z
-        ↓
-5. Pressionar Enter
-        ↓
-6. A leitura do código-fonte termina
-        ↓
-7. O Lexer inicia a análise léxica
-        ↓
-8. O Parser inicia a análise sintática
-        ↓
-9. O resultado é apresentado
+<programa> ::= program IDENTIFICADOR ; <secao_var> <bloco> .
 ```
+
+e o bloco como:
+
+```text
+<bloco> ::= begin <lista_comandos> end
+```
+
+Portanto, o bloco principal é encerrado por:
+
+```pascal
+end.
+```
+
+A `main.c` utiliza essa característica como uma convenção para identificar que o usuário terminou de fornecer o código-fonte.
+
+É importante separar duas responsabilidades:
+
+```text
+main.c
+   ↓
+detecta o término da digitação
+   ↓
+Lexer
+   ↓
+transforma caracteres em tokens
+   ↓
+Parser
+   ↓
+verifica se os tokens obedecem à gramática
+```
+
+Portanto, encontrar `end.` não significa que o programa já foi considerado sintaticamente válido. A validade continua sendo determinada pelo Parser.
 
 ---
 
@@ -1438,13 +1462,7 @@ begin
 end.
 ```
 
-Depois:
-
-```text
-Enter
-Ctrl + Z
-Enter
-```
+Após digitar `end.`, pressione **Enter uma única vez**.
 
 Resultado esperado:
 
@@ -1456,42 +1474,36 @@ Programa sintaticamente valido.
 
 ## 9.4 ❌ Exemplo de Programa Inválido
 
-Considere:
+Considere um programa que possui um erro sintático, mas ainda apresenta `end.` para encerrar a digitação:
 
 ```pascal
 program Teste
+var
+    x : integer;
+begin
+    x := 10;
+end.
 ```
 
-Depois:
+Nesse exemplo, está faltando:
 
 ```text
-Enter
-Ctrl + Z
-Enter
+;
 ```
 
-O Parser reconhecerá:
+depois do identificador `Teste`.
 
-```text
-program → PROGRAM
-Teste   → IDENTIFICADOR
-```
-
-Porém, a gramática espera um `;` depois do identificador:
+A gramática exige:
 
 ```text
 <programa> ::= program IDENTIFICADOR ; <secao_var> <bloco> .
 ```
 
-Como a entrada foi encerrada antes do `;`, o token atual será `FIM`.
+Depois de digitar `end.`, pressione **Enter**.
 
-O resultado será:
+A `main.c` encerra a leitura normalmente, mas o Parser encontra o erro porque esperava `PONTO_VIRGULA` depois do identificador do programa.
 
-```text
-Erro de sintaxe no token [FIM]
-```
-
-Isso indica que a entrada terminou enquanto o Parser ainda esperava outro elemento da gramática.
+Portanto, `end.` apenas encerra a entrada. Ele não faz com que um código incorreto seja aceito.
 
 ---
 

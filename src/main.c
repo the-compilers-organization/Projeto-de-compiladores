@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "define.h"
 
@@ -19,13 +20,14 @@
  * 6. informa se o programa é sintaticamente válido.
  *
  * Fluxo:
- *      código-fonte -> main.c ->  lexer.c -> tokens -> parser.c -> válido ou erro
+ *      código-fonte -> main.c -> lexer.c -> tokens -> parser.c -> válido ou erro
  */
 
 
 /*
  * VARIAVEIS GLOBAIS
  */
+
 
 /*
  * Armazena todo o código-fonte recebido.
@@ -78,13 +80,10 @@ int simbolo_lido;
 int main(){
 
     /*
-     * Armazena temporariamente cada caractere
-     * recebido por getchar().
-     *
-     * É int porque getchar() também precisa representar
-     * o valor especial EOF.
+     * Armazena temporariamente cada linha
+     * digitada pelo usuário.
      */
-    int caractere;
+    char linha[500];
 
 
     /*
@@ -92,6 +91,29 @@ int main(){
      * o vetor entrada.
      */
     int i = 0;
+
+
+    /*
+     * Controla a posição utilizada para percorrer
+     * cada linha recebida.
+     */
+    int j;
+
+
+    /*
+     * Armazena o tamanho da linha digitada.
+     */
+    int tamanho_linha;
+
+
+    /*
+     * Indica se foi encontrado "end." no final
+     * da linha.
+     *
+     * 0 -> ainda não terminou
+     * 1 -> terminou
+     */
+    int fim = 0;
 
 
     printf(
@@ -104,18 +126,90 @@ int main(){
      *
      * O programa pode possuir várias linhas.
      *
-     * Por isso, os caracteres são lidos um por um até
-     * encontrar EOF ou atingir o limite do vetor.
+     * Por isso, cada linha é lida utilizando fgets().
+     *
+     * A leitura termina quando uma linha possuir
+     * "end." no final.
+     *
+     * Dessa forma, não é necessário utilizar
+     * Ctrl + Z para indicar EOF.
      */
     while(
-        (caractere = getchar()) != EOF &&
-        i < TAM - 1
+        fim == 0 &&
+        fgets(
+            linha,
+            sizeof(linha),
+            stdin
+        ) != NULL
     ){
 
-        entrada[i] =
-            caractere;
+        /*
+         * Copia a linha recebida para o vetor
+         * que armazena todo o código-fonte.
+         */
+        j = 0;
 
-        i += 1;
+        while(
+            linha[j] != '\0' &&
+            i < TAM - 1
+        ){
+
+            entrada[i] =
+                linha[j];
+
+            i += 1;
+
+            j += 1;
+        }
+
+
+        /*
+         * Obtém o tamanho da linha recebida.
+         */
+        tamanho_linha =
+            strlen(linha);
+
+
+        /*
+         * fgets() normalmente mantém o '\n'
+         * gerado pelo Enter.
+         *
+         * No Windows também pode existir '\r'.
+         *
+         * Para verificar se a linha termina em
+         * "end.", esses caracteres são ignorados
+         * apenas durante esta verificação.
+         */
+        while(
+            tamanho_linha > 0 &&
+            (
+                linha[tamanho_linha - 1] == '\n' ||
+                linha[tamanho_linha - 1] == '\r'
+            )
+        ){
+
+            tamanho_linha -= 1;
+        }
+
+
+        /*
+         * Verifica se os quatro últimos caracteres
+         * da linha são:
+         *
+         *      end.
+         */
+        if(tamanho_linha >= 4){
+
+            if(
+                linha[tamanho_linha - 4] == 'e' &&
+                linha[tamanho_linha - 3] == 'n' &&
+                linha[tamanho_linha - 2] == 'd' &&
+                linha[tamanho_linha - 1] == '.'
+            ){
+
+                fim = 1;
+            }
+        }
     }
 
 
