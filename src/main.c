@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "define.h"
 
 
@@ -38,9 +37,7 @@ char entrada[TAM];
 /*
  * Armazena o texto correspondente ao token atual.
  *
- * Exemplo:
- *
- * se o Lexer reconhecer a variável "idade":
+ * Exemplo: se o Lexer reconhecer a variável "idade":
  *
  *      lexema = "idade"
  *      simbolo_lido = IDENTIFICADOR
@@ -77,33 +74,16 @@ int simbolo_lido;
  *
  * Iniciar e coordenar todo o processo de análise.
  */
+
 int main(){
 
-    /*
-     * Armazena temporariamente cada linha
-     * digitada pelo usuário.
-     */
-    char linha[500];
+    char linha[500]; //Armazena temporariamente cada linha digitada pelo usuário.
 
+    int i = 0; //Controla a posição utilizada para preencher o vetor entrada.
 
-    /*
-     * Controla a posição utilizada para preencher
-     * o vetor entrada.
-     */
-    int i = 0;
+    int j; //Controla a posição utilizada para percorrer cada linha recebida.
 
-
-    /*
-     * Controla a posição utilizada para percorrer
-     * cada linha recebida.
-     */
-    int j;
-
-
-    /*
-     * Armazena o tamanho da linha digitada.
-     */
-    int tamanho_linha;
+    int tamanho_linha; //Armazena o tamanho da linha digitada.
 
 
     /*
@@ -115,10 +95,7 @@ int main(){
      */
     int fim = 0;
 
-
-    printf(
-        "Digite o programa MicroPascal:\n\n"
-    );
+    printf("Digite o programa MicroPascal:\n\n");
 
 
     /*
@@ -134,31 +111,16 @@ int main(){
      * Dessa forma, não é necessário utilizar
      * Ctrl + Z para indicar EOF.
      */
-    while(
-        fim == 0 &&
-        fgets(
-            linha,
-            sizeof(linha),
-            stdin
-        ) != NULL
-    ){
-
+    while(fim == 0 && fgets(linha, sizeof(linha),stdin) != NULL){
         /*
          * Copia a linha recebida para o vetor
          * que armazena todo o código-fonte.
          */
         j = 0;
 
-        while(
-            linha[j] != '\0' &&
-            i < TAM - 1
-        ){
-
-            entrada[i] =
-                linha[j];
-
+        while(linha[j] != '\0' && i < TAM - 1){
+            entrada[i] = linha[j];
             i += 1;
-
             j += 1;
         }
 
@@ -166,8 +128,7 @@ int main(){
         /*
          * Obtém o tamanho da linha recebida.
          */
-        tamanho_linha =
-            strlen(linha);
+        tamanho_linha = strlen(linha);
 
 
         /*
@@ -180,14 +141,7 @@ int main(){
          * "end.", esses caracteres são ignorados
          * apenas durante esta verificação.
          */
-        while(
-            tamanho_linha > 0 &&
-            (
-                linha[tamanho_linha - 1] == '\n' ||
-                linha[tamanho_linha - 1] == '\r'
-            )
-        ){
-
+        while(tamanho_linha > 0 && (linha[tamanho_linha - 1] == '\n' || linha[tamanho_linha - 1] == '\r')){
             tamanho_linha -= 1;
         }
 
@@ -204,8 +158,7 @@ int main(){
                 linha[tamanho_linha - 4] == 'e' &&
                 linha[tamanho_linha - 3] == 'n' &&
                 linha[tamanho_linha - 2] == 'd' &&
-                linha[tamanho_linha - 1] == '.'
-            ){
+                linha[tamanho_linha - 1] == '.'){
 
                 fim = 1;
             }
@@ -255,13 +208,8 @@ int main(){
      * o programa.
      */
     if(simbolo_lido == FIM){
-
-        printf(
-            "\nPrograma sintaticamente valido.\n"
-        );
-
+        printf("\nPrograma sintaticamente valido.\n");
     }else{
-
         erro_sintatico();
     }
 

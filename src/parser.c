@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "define.h"
 
 
@@ -45,12 +44,7 @@
  * o problema.
  */
 void erro_sintatico(void){
-
-    printf(
-        "Erro de sintaxe no token [%s]\n",
-        lexema
-    );
-
+    printf("Erro de sintaxe no token [%s]\n", lexema);
     exit(1);
 }
 
@@ -78,15 +72,10 @@ void erro_sintatico(void){
  *      "Neste ponto da gramática eu espero encontrar
  *       a palavra program."
  */
-void consumir(
-        int token){
-
+void consumir(int token){
     if(simbolo_lido == token){
-
         obtenha_simbolo();
-
     }else{
-
         erro_sintatico();
     }
 }
@@ -106,17 +95,11 @@ void consumir(
  *      .
  */
 void programa(void){
-
     consumir(PROGRAM);
-
     consumir(IDENTIFICADOR);
-
     consumir(PONTO_VIRGULA);
-
     secao_var();
-
     bloco();
-
     consumir(PONTO);
 }
 
@@ -129,20 +112,14 @@ void programa(void){
  * Depois de "var", podem existir várias declarações.
  */
 void secao_var(void){
-
     consumir(VAR);
-
     /*
      * Toda declaração começa com IDENTIFICADOR.
      *
      * Enquanto encontrarmos um identificador, existe
      * outra declaração para analisar.
      */
-    while(
-        simbolo_lido ==
-        IDENTIFICADOR
-    ){
-
+    while(simbolo_lido == IDENTIFICADOR){
         decl_var();
     }
 }
@@ -165,38 +142,16 @@ void secao_var(void){
  * identificadores separados por vírgula.
  */
 void decl_var(void){
+    consumir(IDENTIFICADOR);
 
-    consumir(
-        IDENTIFICADOR
-    );
-
-
-    while(
-        simbolo_lido ==
-        VIRGULA
-    ){
-
-        consumir(
-            VIRGULA
-        );
-
-        consumir(
-            IDENTIFICADOR
-        );
+    while(simbolo_lido == VIRGULA){
+        consumir(VIRGULA);
+        consumir(IDENTIFICADOR);
     }
 
-
-    consumir(
-        DOIS_PONTOS
-    );
-
-
+    consumir(DOIS_PONTOS);
     tipo();
-
-
-    consumir(
-        PONTO_VIRGULA
-    );
+    consumir(PONTO_VIRGULA);
 }
 
 
@@ -210,21 +165,16 @@ void decl_var(void){
  *      char
  */
 void tipo(void){
-
     if(simbolo_lido == INTEGER){
-
         consumir(INTEGER);
 
     }else if(simbolo_lido == REAL){
-
         consumir(REAL);
 
     }else if(simbolo_lido == CHAR){
-
         consumir(CHAR);
-
+        
     }else{
-
         erro_sintatico();
     }
 }
@@ -240,16 +190,9 @@ void tipo(void){
  *      end
  */
 void bloco(void){
-
-    consumir(
-        BEGIN_TOKEN
-    );
-
+    consumir(BEGIN_TOKEN);
     lista_comandos();
-
-    consumir(
-        END_TOKEN
-    );
+    consumir(END_TOKEN);
 }
 
 
@@ -296,36 +239,23 @@ void lista_comandos(void){
 void comando(void){
 
     if(simbolo_lido == BEGIN_TOKEN){
-
+        
         bloco();
+        consumir(PONTO_VIRGULA);
 
-        consumir(
-            PONTO_VIRGULA
-        );
-
-    }else if(
-        simbolo_lido ==
-        IDENTIFICADOR
-    ){
+    }else if(simbolo_lido == IDENTIFICADOR){
 
         atribuicao();
 
-    }else if(
-        simbolo_lido == WHILE ||
-        simbolo_lido == REPEAT
-    ){
+    }else if(simbolo_lido == WHILE || simbolo_lido == REPEAT){
 
         iteracao();
 
-    }else if(
-        simbolo_lido == IF
-    ){
+    }else if(simbolo_lido == IF){
 
         decisao();
 
-    }else if(
-        simbolo_lido == WRITE
-    ){
+    }else if(simbolo_lido == WRITE){
 
         escrita();
 
@@ -348,20 +278,10 @@ void comando(void){
  *      soma := x + 5;
  */
 void atribuicao(void){
-
-    consumir(
-        IDENTIFICADOR
-    );
-
-    consumir(
-        ATRIBUICAO
-    );
-
+    consumir(IDENTIFICADOR);
+    consumir(ATRIBUICAO);
     expressao();
-
-    consumir(
-        PONTO_VIRGULA
-    );
+    consumir(PONTO_VIRGULA);
 }
 
 
@@ -381,28 +301,17 @@ void iteracao(void){
     if(simbolo_lido == WHILE){
 
         consumir(WHILE);
-
         expressao();
-
         consumir(DO);
-
         comando();
 
-    }else if(
-        simbolo_lido == REPEAT
-    ){
+    }else if(simbolo_lido == REPEAT){
 
         consumir(REPEAT);
-
         comando();
-
         consumir(UNTIL);
-
         expressao();
-
-        consumir(
-            PONTO_VIRGULA
-        );
+        consumir(PONTO_VIRGULA);
 
     }else{
 
@@ -427,20 +336,13 @@ void iteracao(void){
  * O else é opcional, por isso é verificado com um if.
  */
 void decisao(void){
-
     consumir(IF);
-
     expressao();
-
     consumir(THEN);
-
     comando();
 
-
     if(simbolo_lido == ELSE){
-
         consumir(ELSE);
-
         comando();
     }
 }
@@ -458,18 +360,11 @@ void decisao(void){
  *      write('a');
  */
 void escrita(void){
-
     consumir(WRITE);
-
     consumir(ABRE_PAR);
-
     expressao();
-
     consumir(FECHA_PAR);
-
-    consumir(
-        PONTO_VIRGULA
-    );
+    consumir(PONTO_VIRGULA);
 }
 
 
@@ -481,7 +376,6 @@ void escrita(void){
  * A análise é dividida em níveis de precedência.
  */
 void expressao(void){
-
     expr_logica();
 }
 
@@ -498,25 +392,17 @@ void expressao(void){
  * definidos para as expressões.
  */
 void expr_logica(void){
-
     expr_relacional();
 
-
-    while(
-        simbolo_lido == OR ||
-        simbolo_lido == AND
-    ){
+    while(simbolo_lido == OR || simbolo_lido == AND){
 
         if(simbolo_lido == OR){
-
             consumir(OR);
-
         }else{
-
             consumir(AND);
         }
-
         expr_relacional();
+
     }
 }
 
@@ -534,9 +420,7 @@ void expr_logica(void){
  *      >=
  */
 void expr_relacional(void){
-
     expr_aditiva();
-
 
     while(
         simbolo_lido == IGUAL ||
@@ -544,8 +428,7 @@ void expr_relacional(void){
         simbolo_lido == MENOR ||
         simbolo_lido == MAIOR ||
         simbolo_lido == MENOR_IGUAL ||
-        simbolo_lido == MAIOR_IGUAL
-    ){
+        simbolo_lido == MAIOR_IGUAL){
 
         /*
          * Guarda qual operador foi encontrado.
@@ -554,12 +437,9 @@ void expr_relacional(void){
          * o mesmo comportamento sintático, podemos
          * consumir o próprio valor de simbolo_lido.
          */
-        int operador =
-            simbolo_lido;
+        int operador = simbolo_lido;
 
-        consumir(
-            operador
-        );
+        consumir(operador);
 
         expr_aditiva();
     }
@@ -578,22 +458,12 @@ void expr_relacional(void){
  * e depois procura novas operações de soma ou subtração.
  */
 void expr_aditiva(void){
-
     expr_multiplicativa();
 
+    while(simbolo_lido == MAIS || simbolo_lido == MENOS){
 
-    while(
-        simbolo_lido == MAIS ||
-        simbolo_lido == MENOS
-    ){
-
-        int operador =
-            simbolo_lido;
-
-        consumir(
-            operador
-        );
-
+        int operador = simbolo_lido;
+        consumir(operador);
         expr_multiplicativa();
     }
 }
@@ -615,20 +485,9 @@ void expr_multiplicativa(void){
 
     expr_basica();
 
-
-    while(
-        simbolo_lido == MULT ||
-        simbolo_lido == DIV_REAL ||
-        simbolo_lido == DIV
-    ){
-
-        int operador =
-            simbolo_lido;
-
-        consumir(
-            operador
-        );
-
+    while(simbolo_lido == MULT || simbolo_lido == DIV_REAL || simbolo_lido == DIV){
+        int operador = simbolo_lido;
+        consumir(operador);
         expr_basica();
     }
 }
@@ -659,62 +518,32 @@ void expr_basica(void){
 
     if(simbolo_lido == ABRE_PAR){
 
-        consumir(
-            ABRE_PAR
-        );
-
+        consumir(ABRE_PAR);
         expressao();
+        consumir(FECHA_PAR);
 
-        consumir(
-            FECHA_PAR
-        );
-
-    }else if(
-        simbolo_lido == NOT
-    ){
+    }else if(simbolo_lido == NOT){
 
         consumir(NOT);
-
         expressao();
 
-    }else if(
-        simbolo_lido ==
-        INTEIRO_LITERAL
-    ){
+    }else if( simbolo_lido == INTEIRO_LITERAL){
 
-        consumir(
-            INTEIRO_LITERAL
-        );
+        consumir(INTEIRO_LITERAL);
 
-    }else if(
-        simbolo_lido ==
-        REAL_LITERAL
-    ){
+    }else if(simbolo_lido == REAL_LITERAL){
 
-        consumir(
-            REAL_LITERAL
-        );
+        consumir(REAL_LITERAL);
 
-    }else if(
-        simbolo_lido ==
-        CHAR_LITERAL
-    ){
+    }else if(simbolo_lido == CHAR_LITERAL){
 
-        consumir(
-            CHAR_LITERAL
-        );
+        consumir(CHAR_LITERAL);
 
-    }else if(
-        simbolo_lido ==
-        IDENTIFICADOR
-    ){
+    }else if(simbolo_lido == IDENTIFICADOR){
 
-        consumir(
-            IDENTIFICADOR
-        );
+        consumir(IDENTIFICADOR);
 
     }else{
-
         erro_sintatico();
     }
 }
