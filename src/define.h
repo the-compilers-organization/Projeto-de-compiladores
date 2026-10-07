@@ -1,5 +1,4 @@
 
-
 // Este arquivo possui as definições utilizadas em todo o projeto. Nele ficam:
 // - constantes de tamanho;
 // - códigos dos tokens reconhecidos pelo Lexer;
@@ -13,119 +12,87 @@
 // Quantidade máxima de caracteres que podem ser armazenados m um lexema reconhecido pelo Lexer.
 #define TAM_LEXEMA 100
 
-
 // TOKENS: Cada constante abaixo representa um tipo de token. O Lexer identifica um lexema da entrada e armazena em
 // simbolo_lido uma dessas constantes.
 
 
-/*
- * IDENTIFICADORES E LITERAIS
- */
-
-/* Nome de variável ou identificador. */
-#define IDENTIFICADOR 1
-
-/* Número inteiro, por exemplo: 10, 25, 100. */
-#define INTEIRO_LITERAL 2
-
-/* Número real, por exemplo: 10.5 ou .5. */
-#define REAL_LITERAL 3
-
-/* Caractere literal, por exemplo: 'a', '5' ou '\n'. */
-#define CHAR_LITERAL 4
+// IDENTIFICADORES E LITERAIS
 
 
-/*
- * OPERADORES RELACIONAIS
- */
+#define IDENTIFICADOR 1 //Nome de variável ou identificador.
 
-/* Operador < */
-#define MENOR 5
+#define INTEIRO_LITERAL 2 //Número inteiro, por exemplo: 10, 25, 100.
 
-/* Operador > */
-#define MAIOR 6
+#define REAL_LITERAL 3 //Número real, por exemplo: 10.5 ou .5.
 
-/* Operador <= */
-#define MENOR_IGUAL 7
-
-/* Operador >= */
-#define MAIOR_IGUAL 8
-
-/* Operador = */
-#define IGUAL 9
-
-/* Operador <> */
-#define DIFERENTE 10
+#define CHAR_LITERAL 4 //Caractere literal, por exemplo: 'a', '5' ou '\n'.
 
 
-/*
- * OPERADORES ARITMETICOS
- */
-
-/* Operador de adição + */
-#define MAIS 11
-
-/* Operador de subtração - */
-#define MENOS 12
-
-/* Operador de multiplicação * */
-#define MULT 13
-
-/* Operador de divisão real / */
-#define DIV_REAL 14
+// OPERADORES RELACIONAIS
 
 
-/*
- * OPERADORES REPRESENTADOS POR PALAVRAS RESERVADAS
- */
+#define MENOR 5 //Operador <
 
-/* Operador de divisão inteira div */
-#define DIV 15
+#define MAIOR 6 //Operador >
 
-/* Operador lógico and */
-#define AND 16
+#define MENOR_IGUAL 7 //Operador <=
 
-/* Operador lógico or */
-#define OR 17
+#define MAIOR_IGUAL 8 //Operador >=
 
-/* Operador lógico not */
-#define NOT 18
+#define IGUAL 9 //Operador =
+
+#define DIFERENTE 10 //Operador <>
 
 
-/*
- * OPERADOR DE ATRIBUICAO
- */
-
-/* Operador := */
-#define ATRIBUICAO 19
+// OPERADORES ARITMETICOS
 
 
-/*
- * SIMBOLOS ESPECIAIS
- */
+#define MAIS 11 //Operador de adição +
 
-/* Símbolo ( */
-#define ABRE_PAR 20
+#define MENOS 12 //Operador de subtração -
 
-/* Símbolo ) */
-#define FECHA_PAR 21
+#define MULT 13 //Operador de multiplicação *
 
-/* Símbolo , */
-#define VIRGULA 22
-
-/* Símbolo ; */
-#define PONTO_VIRGULA 23
-
-/* Símbolo . */
-#define PONTO 24
-
-/* Símbolo : */
-#define DOIS_PONTOS 25
+#define DIV_REAL 14 //Operador de divisão real /
 
 
-/*
- * PALAVRAS RESERVADAS
- */
+// OPERADORES REPRESENTADOS POR PALAVRAS RESERVADAS
+
+
+#define DIV 15 //Operador de divisão inteira div
+
+#define AND 16 //Operador lógico and
+
+#define OR 17 //Operador lógico or
+
+#define NOT 18 //Operador lógico not
+
+
+// OPERADOR DE ATRIBUICAO
+
+
+#define ATRIBUICAO 19 //Operador :=
+
+
+// SIMBOLOS ESPECIAIS
+
+
+#define ABRE_PAR 20 //Símbolo (
+
+#define FECHA_PAR 21 //Símbolo )
+
+#define VIRGULA 22 //Símbolo ,
+
+#define PONTO_VIRGULA 23 //Símbolo ;
+
+#define PONTO 24 //Símbolo .
+
+#define DOIS_PONTOS 25 //Símbolo :
+
+
+
+// PALAVRAS RESERVADAS
+
 
 #define PROGRAM 26
 #define IF 27
@@ -139,63 +106,48 @@
 #define REAL 35
 #define CHAR 36
 
-/*
- * Foi utilizado BEGIN_TOKEN em vez de BEGIN para deixar
- * explícito que a constante representa o token da palavra
- * reservada "begin".
- */
+
+//Foi utilizado BEGIN_TOKEN em vez de BEGIN para deixar
+//explícito que a constante representa o token da palavra
+//reservada "begin".
+
+
 #define BEGIN_TOKEN 37
 
-/* Token correspondente à palavra reservada "end". */
-#define END_TOKEN 38
+#define END_TOKEN 38 //Token correspondente à palavra reservada "end". 
 
-/* Token correspondente à palavra reservada "write". */
-#define WRITE 39
+#define WRITE 39 //Token correspondente à palavra reservada "write".
 
-/* Token correspondente à palavra reservada "var". */
-#define VAR 40
-
+#define VAR 40 //Token correspondente à palavra reservada "var".
 
 /*
  * Representa o final da entrada.
- *
  * Quando o Lexer encontra '\0', simbolo_lido recebe FIM.
  */
 #define FIM 41
 
 
-/*
-// VARIAVEIS GLOBAIS COMPARTILHADAS: O modificador extern informa que essas variáveis existem
- * em outro arquivo. A definição real será feita em main.c.
- */
 
-/*
- * Armazena todo o código-fonte que será analisado.
- */
+// VARIAVEIS GLOBAIS COMPARTILHADAS: O modificador extern informa que essas variáveis existem
+// em outro arquivo. A definição real será feita em main.c.
+
+// Armazena todo o código-fonte que será analisado.
+
 extern char entrada[TAM];
 
-/*
- * Armazena o lexema correspondente ao token atual.
- *
- * Exemplo:
- *
- * entrada: soma := 10;
- *
- * quando o token atual for IDENTIFICADOR:
- *
- * lexema = "soma"
- */
+// Armazena o lexema correspondente ao token atual.
+
+// Exemplo:
+// entrada: soma := 10;
+// quando o token atual for IDENTIFICADOR:
+// lexema = "soma"
+
 extern char lexema[TAM_LEXEMA];
 
-/*
- * Indica a posição atual do Lexer dentro do vetor entrada.
- */
-extern int posicao;
 
-/*
- * Armazena o token atualmente reconhecido pelo Lexer.
- */
-extern int simbolo_lido;
+extern int posicao; //Indica a posição atual do Lexer dentro do vetor entrada.
+
+extern int simbolo_lido; //Armazena o token atualmente reconhecido pelo Lexer.
 
 
 // FUNCOES DO LEXER
@@ -248,70 +200,51 @@ void consumir(
 );
 
 
-/*
- * Exibe uma mensagem informando que o token atual
- * não era esperado pela gramática.
- */
+// Exibe uma mensagem informando que o token atual
+// não era esperado pela gramática.
+
 void erro_sintatico(void);
 
 
-/*
- * Cada função abaixo representa um símbolo não terminal
- * da gramática utilizada pelo Parser.
- */
+//  Cada função abaixo representa um símbolo não terminal
+//  da gramática utilizada pelo Parser.
 
-/* Reconhece a estrutura completa de um programa. */
-void programa(void);
 
-/* Reconhece a seção de declaração de variáveis. */
-void secao_var(void);
+void programa(void); //Reconhece a estrutura completa de um programa.
 
-/* Reconhece uma declaração de variável. */
-void decl_var(void);
+void secao_var(void); //Reconhece a seção de declaração de variáveis.
 
-/* Reconhece os tipos integer, real ou char. */
-void tipo(void);
+void decl_var(void); //Reconhece uma declaração de variável.
 
-/* Reconhece um bloco delimitado por begin e end. */
-void bloco(void);
+void tipo(void); //Reconhece os tipos integer, real ou char.
 
-/* Reconhece uma sequência de zero ou mais comandos. */
-void lista_comandos(void);
+void bloco(void); //Reconhece um bloco delimitado por begin e end.
 
-/* Identifica e encaminha o tipo de comando encontrado. */
-void comando(void);
+void lista_comandos(void); //Reconhece uma sequência de zero ou mais comandos.
 
-/* Reconhece um comando de atribuição. */
-void atribuicao(void);
+void comando(void); //Identifica e encaminha o tipo de comando encontrado.
 
-/* Reconhece comandos de repetição while e repeat. */
-void iteracao(void);
+void atribuicao(void); //Reconhece um comando de atribuição.
 
-/* Reconhece estruturas condicionais if/then/else. */
-void decisao(void);
+void iteracao(void); //Reconhece comandos de repetição while e repeat.
 
-/* Reconhece o comando write. */
-void escrita(void);
+void decisao(void); //Reconhece estruturas condicionais if/then/else.
+
+void escrita(void); //Reconhece o comando write.
 
 
 // FUNCOES PARA EXPRESSOES: As expressões foram divididas em níveis para respeitar
 // precedência dos operadores da linguagem.
 
 
-/* Inicia a análise de uma expressão. */
-void expressao(void);
+void expressao(void); //Inicia a análise de uma expressão.
 
-/* Reconhece operadores lógicos: and e or. */
-void expr_logica(void);
+void expr_logica(void); //Reconhece operadores lógicos: and e or.
 
-/* Reconhece operadores relacionais. */
-void expr_relacional(void);
+void expr_relacional(void); //Reconhece operadores relacionais.
 
-/* Reconhece operações de adição e subtração. */
-void expr_aditiva(void);
+void expr_aditiva(void); //Reconhece operações de adição e subtração.
 
-/* Reconhece multiplicação e divisões. */
-void expr_multiplicativa(void);
+void expr_multiplicativa(void); //Reconhece multiplicação e divisões.
 
-/* Reconhece os elementos básicos de uma expressão. */
-void expr_basica(void);
+void expr_basica(void); //Reconhece os elementos básicos de uma expressão.
