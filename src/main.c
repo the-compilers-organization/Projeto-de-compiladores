@@ -23,35 +23,23 @@
  */
 
 
-/*
- * VARIAVEIS GLOBAIS
- */
+// VARIAVEIS GLOBAIS
 
 
-/*
- * Armazena todo o código-fonte recebido.
- */
-char entrada[TAM];
+char entrada[TAM]; //Armazena todo o código-fonte recebido.
 
 
-/*
- * Armazena o texto correspondente ao token atual.
- *
- * Exemplo: se o Lexer reconhecer a variável "idade":
- *
- *      lexema = "idade"
- *      simbolo_lido = IDENTIFICADOR
- */
+// Armazena o texto correspondente ao token atual.
+// Exemplo: se o Lexer reconhecer a variável "idade":
+
+// lexema = "idade"
+// simbolo_lido = IDENTIFICADOR
+
+
 char lexema[TAM_LEXEMA];
 
-
-/*
- * Indica a posição atual dentro de entrada.
- *
- * O Lexer utiliza essa variável para saber de qual
- * caractere deve continuar a análise.
- */
-int posicao = 0;
+// O Lexer utiliza essa variável para saber de qual caractere deve continuar a análise.
+int posicao = 0; //Indica a posição atual dentro de entrada.
 
 
 /*
@@ -153,13 +141,8 @@ int main(){
          *      end.
          */
         if(tamanho_linha >= 4){
-
-            if(
-                linha[tamanho_linha - 4] == 'e' &&
-                linha[tamanho_linha - 3] == 'n' &&
-                linha[tamanho_linha - 2] == 'd' &&
-                linha[tamanho_linha - 1] == '.'){
-
+            if(linha[tamanho_linha - 4] == 'e' && linha[tamanho_linha - 3] == 'n' &&
+               linha[tamanho_linha - 2] == 'd' && linha[tamanho_linha - 1] == '.'){
                 fim = 1;
             }
         }
