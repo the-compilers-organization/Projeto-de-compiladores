@@ -1,10 +1,44 @@
-# 🔤 Projeto de Compiladores — MicroPascal
+<h1 align="center">🔤 Projeto de Compiladores — MicroPascal</h1>
 
-> **Parte 1 — Analisador Léxico e Analisador Sintático**
+<p align="center">
+  <img src="https://img.shields.io/static/v1?label=C&message=MicroPascal&color=00599C&style=for-the-badge&logo=c"/>
+  <img src="https://img.shields.io/static/v1?label=GCC&message=Compilador&color=A42E2B&style=for-the-badge&logo=gnu"/>
+  <img src="https://img.shields.io/static/v1?label=Git&message=Versionamento&color=F05032&style=for-the-badge&logo=git"/>
+  <img src="https://img.shields.io/static/v1?label=GitHub&message=2026.2&color=181717&style=for-the-badge&logo=github"/>
+  <img src="https://img.shields.io/static/v1?label=STATUS&message=EM%20DESENVOLVIMENTO&color=yellow&style=for-the-badge"/>
+</p>
 
-> Status: 🚧 Em desenvolvimento
+<p align="center">
+  <strong>Parte 1 — Analisador Léxico e Analisador Sintático</strong>
+</p>
+
+> **Status do Projeto:** 🚧 Em desenvolvimento
 
 Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Universidade Católica de Pernambuco (UNICAP), sob orientação do professor **Robson Lins**.
+
+---
+
+# 📌 Tópicos
+
+:small_blue_diamond: [Sobre o Projeto](#️-sobre-o-projeto)  
+:small_blue_diamond: [Objetivos da Parte 1](#-objetivos-da-parte-1)  
+:small_blue_diamond: [Estrutura do Projeto](#️-estrutura-do-projeto)  
+:small_blue_diamond: [Organização dos Arquivos](#-organização-dos-arquivos)  
+:small_blue_diamond: [Fluxo do Projeto](#-fluxo-do-projeto)  
+:small_blue_diamond: [Parte 1 — Análise Léxica e Sintática](#-parte-1--análise-léxica-e-sintática)  
+:small_blue_diamond: [Analisador Léxico](#1--analisador-léxico-lexer)  
+:small_blue_diamond: [Analisador Sintático](#2--analisador-sintático-parser)  
+:small_blue_diamond: [Gramática de micro-Pascal](#3--gramática-de-micro-pascal)  
+:small_blue_diamond: [Precedência e Associatividade](#4--precedência-e-associatividade)  
+:small_blue_diamond: [Integração entre Lexer e Parser](#5--integração-entre-lexer-e-parser)  
+:small_blue_diamond: [Tratamento de Erros](#6-️-tratamento-de-erros)  
+:small_blue_diamond: [Exemplos de Código micro-Pascal](#7--exemplos-de-código-micro-pascal)  
+:small_blue_diamond: [Compilação](#8-️-compilação)  
+:small_blue_diamond: [Testando o Analisador](#9--testando-o-analisador)  
+:small_blue_diamond: [Resumo das Responsabilidades](#10--resumo-das-responsabilidades)  
+:small_blue_diamond: [Escopo](#-escopo)  
+:small_blue_diamond: [Referência](#-referência)  
+:small_blue_diamond: [Desenvolvedores](#-desenvolvedores)
 
 ---
 
@@ -1522,7 +1556,9 @@ Este README documenta os requisitos e a implementação correspondente à **Part
 
 Documento-base fornecido para a atividade:
 
-**MicroPascal — Projeto de Compiladores: Primeira Parte.**
+📄 **[MicroPascal — Projeto de Compiladores: Primeira Parte](doc/MicroPascal-parte1.pdf)**
+
+O documento apresenta as especificações utilizadas como base para o desenvolvimento da **Parte 1 do projeto**, contemplando o **Analisador Léxico (Lexer)** e o **Analisador Sintático (Parser)**.
 
 ---
 
