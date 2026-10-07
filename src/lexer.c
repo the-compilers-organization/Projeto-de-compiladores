@@ -5,125 +5,62 @@
 #include "define.h"
 
 
-/*
- * Responsabilidade:
- *
- * Este arquivo implementa o ANALISADOR LEXICO (Lexer).
- *
- * O Lexer percorre o código-fonte armazenado em entrada
- * caractere por caractere e agrupa esses caracteres em
- * lexemas.
- *
- * Para cada lexema encontrado, determina qual token ele
- * representa.
- *
- *
- * Tokens:
- *
- *      IDENTIFICADOR
- *      ATRIBUICAO
- *      INTEIRO_LITERAL
- *      PONTO_VIRGULA
- *
- * Portanto: caracteres -> Lexer -> tokens
- */
-
-
-/*
- * FUNCAO: palavra_reservada
- *
- * Responsabilidade:
- *
- * Verificar se uma sequência de letras reconhecida pelo
- * Lexer corresponde a uma palavra reservada da linguagem.
- *
- * Exemplos:
- *
- *      "program" -> PROGRAM
- *      "while"   -> WHILE
- *      "integer" -> INTEGER
- *      "div"     -> DIV
- *
- * Se a palavra não for reservada:
- *
- *      "idade" -> IDENTIFICADOR
- */
-
-
 int palavra_reservada(char palavra[]){
 
     if(strcmp(palavra, "program") == 0){
         return PROGRAM;
     }
-
     if(strcmp(palavra, "if") == 0){
         return IF;
     }
-
     if(strcmp(palavra, "then") == 0){
         return THEN;
     }
-
     if(strcmp(palavra, "else") == 0){
         return ELSE;
     }
-
     if(strcmp(palavra, "while") == 0){
         return WHILE;
     }
-
     if(strcmp(palavra, "do") == 0){
         return DO;
     }
-
     if(strcmp(palavra, "repeat") == 0){
         return REPEAT;
     }
-
     if(strcmp(palavra, "until") == 0){
         return UNTIL;
     }
-
     if(strcmp(palavra, "integer") == 0){
         return INTEGER;
     }
-
     if(strcmp(palavra, "real") == 0){
         return REAL;
     }
-
     if(strcmp(palavra, "char") == 0){
         return CHAR;
     }
-
     if(strcmp(palavra, "begin") == 0){
         return BEGIN_TOKEN;
     }
-
     if(strcmp(palavra, "end") == 0){
         return END_TOKEN;
     }
-
     if(strcmp(palavra, "write") == 0){
         return WRITE;
     }
-
     if(strcmp(palavra, "var") == 0){
         return VAR;
     }
-
     if(strcmp(palavra, "div") == 0){
         return DIV;
     }
-
     if(strcmp(palavra, "and") == 0){
         return AND;
     }
-
     if(strcmp(palavra, "or") == 0){
         return OR;
     }
-
     if(strcmp(palavra, "not") == 0){
         return NOT;
     }
@@ -132,19 +69,6 @@ int palavra_reservada(char palavra[]){
 }
 
 
-/*
- * ============================================================
- * FUNCAO: erro_lexico
- * ============================================================
- *
- * Responsabilidade:
- *
- * Informar que foi encontrado um caractere que não pode
- * iniciar ou formar um token válido da linguagem.
- *
- * Após mostrar a mensagem, a execução é encerrada porque
- * não é possível continuar a análise corretamente.
- */
 
 void erro_lexico(char caractere){
     printf("Erro lexico no caracter [%c]\n",caractere);
@@ -152,33 +76,6 @@ void erro_lexico(char caractere){
 }
 
 
-/*
- * FUNCAO: obtenha_simbolo
- *
- * Responsabilidade:
- *
- * Esta é a principal função do Lexer.
- *
- * Ela começa na posição atual da entrada, identifica o
- * próximo lexema, determina seu token e atualiza:
- *
- *      lexema
- *      simbolo_lido
- *      posicao
- *
- * A função reconhece:
- *
- * - identificadores;
- * - palavras reservadas;
- * - números inteiros;
- * - números reais;
- * - caracteres literais;
- * - operadores;
- * - símbolos especiais;
- * - fim da entrada.
- *
- * Espaços, tabulações e quebras de linha são ignorados.
- */
 
 void obtenha_simbolo(void){
     int i;
@@ -362,7 +259,6 @@ void obtenha_simbolo(void){
 
     // ================== A partir daqui são reconhecidos operadores e símbolos especiais
 
-    /* Operador + */
     if(entrada[posicao] == '+'){
         strcpy(lexema, "+");
         simbolo_lido = MAIS;
@@ -370,8 +266,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /* Operador - */
     if(entrada[posicao] == '-'){
         strcpy(lexema, "-");
         simbolo_lido = MENOS;
@@ -379,8 +273,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /* Operador * */
     if(entrada[posicao] == '*'){
         strcpy(lexema, "*");
         simbolo_lido = MULT;
@@ -388,8 +280,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /* Operador / */
     if(entrada[posicao] == '/'){
         strcpy(lexema, "/");
         simbolo_lido = DIV_REAL;
@@ -397,8 +287,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /* Operador relacional = */
     if(entrada[posicao] == '='){
         strcpy(lexema, "=");
         simbolo_lido = IGUAL;
@@ -481,8 +369,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /* Abre parêntese */
     if(entrada[posicao] == '('){
         strcpy(lexema, "(");
         simbolo_lido = ABRE_PAR;
@@ -490,8 +376,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /* Fecha parêntese */
     if(entrada[posicao] == ')'){
         strcpy(lexema, ")");
         simbolo_lido = FECHA_PAR;
@@ -499,8 +383,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /* Vírgula */
     if(entrada[posicao] == ','){
         strcpy(lexema, ",");
         simbolo_lido = VIRGULA;
@@ -508,8 +390,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /* Ponto e vírgula */
     if(entrada[posicao] == ';'){
         strcpy(lexema, ";");
         simbolo_lido = PONTO_VIRGULA;
@@ -517,8 +397,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /* Ponto */
     if(entrada[posicao] == '.'){
         strcpy(lexema, ".");
         simbolo_lido = PONTO;

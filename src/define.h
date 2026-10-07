@@ -6,25 +6,13 @@
 // - protótipos das funções do Lexer;
 // - protótipos das funções do Parser.
 
-// Quantidade máxima de caracteres que podem ser armazenados no código-fonte recebido pelo programa.
 #define TAM 10000
-
-// Quantidade máxima de caracteres que podem ser armazenados m um lexema reconhecido pelo Lexer.
-#define TAM_LEXEMA 100
-
-// TOKENS: Cada constante abaixo representa um tipo de token. O Lexer identifica um lexema da entrada e armazena em
-// simbolo_lido uma dessas constantes.
-
-
-// IDENTIFICADORES E LITERAIS
+#define TAM_LEXEMA 100 //caracteres que podem ser armazenados  num lexema reconhecido pelo Lexer.
 
 
 #define IDENTIFICADOR 1 //Nome de variável ou identificador.
-
-#define INTEIRO_LITERAL 2 //Número inteiro, por exemplo: 10, 25, 100.
-
-#define REAL_LITERAL 3 //Número real, por exemplo: 10.5 ou .5.
-
+#define INTEIRO_LITERAL 2 //Número inteiro
+#define REAL_LITERAL 3 //Número real
 #define CHAR_LITERAL 4 //Caractere literal, por exemplo: 'a', '5' ou '\n'.
 
 
@@ -32,15 +20,10 @@
 
 
 #define MENOR 5 //Operador <
-
 #define MAIOR 6 //Operador >
-
 #define MENOR_IGUAL 7 //Operador <=
-
 #define MAIOR_IGUAL 8 //Operador >=
-
 #define IGUAL 9 //Operador =
-
 #define DIFERENTE 10 //Operador <>
 
 
@@ -48,11 +31,8 @@
 
 
 #define MAIS 11 //Operador de adição +
-
 #define MENOS 12 //Operador de subtração -
-
 #define MULT 13 //Operador de multiplicação *
-
 #define DIV_REAL 14 //Operador de divisão real /
 
 
@@ -60,11 +40,8 @@
 
 
 #define DIV 15 //Operador de divisão inteira div
-
 #define AND 16 //Operador lógico and
-
 #define OR 17 //Operador lógico or
-
 #define NOT 18 //Operador lógico not
 
 
@@ -78,17 +55,11 @@
 
 
 #define ABRE_PAR 20 //Símbolo (
-
 #define FECHA_PAR 21 //Símbolo )
-
 #define VIRGULA 22 //Símbolo ,
-
 #define PONTO_VIRGULA 23 //Símbolo ;
-
 #define PONTO 24 //Símbolo .
-
 #define DOIS_PONTOS 25 //Símbolo :
-
 
 
 // PALAVRAS RESERVADAS
@@ -105,146 +76,60 @@
 #define INTEGER 34
 #define REAL 35
 #define CHAR 36
-
-
-//Foi utilizado BEGIN_TOKEN em vez de BEGIN para deixar
-//explícito que a constante representa o token da palavra
-//reservada "begin".
-
-
 #define BEGIN_TOKEN 37
-
-#define END_TOKEN 38 //Token correspondente à palavra reservada "end". 
-
-#define WRITE 39 //Token correspondente à palavra reservada "write".
-
-#define VAR 40 //Token correspondente à palavra reservada "var".
-
-/*
- * Representa o final da entrada.
- * Quando o Lexer encontra '\0', simbolo_lido recebe FIM.
- */
-#define FIM 41
+#define END_TOKEN 38
+#define WRITE 39 
+#define VAR 40 
+#define FIM 41 //final da entrada, quando lexer encontra \0, simbolo_lido recebe FIM
 
 
 
-// VARIAVEIS GLOBAIS COMPARTILHADAS: O modificador extern informa que essas variáveis existem
-// em outro arquivo. A definição real será feita em main.c.
-
+// ------------------------------------------- VARIAVEIS GLOBAIS COMPARTILHADAS: 
+// O modificador extern informa que essas variáveis existem em outro arquivo. A definição real será feita em main.c.
 // Armazena todo o código-fonte que será analisado.
 
 extern char entrada[TAM];
-
-// Armazena o lexema correspondente ao token atual.
-
-// Exemplo:
-// entrada: soma := 10;
-// quando o token atual for IDENTIFICADOR:
-// lexema = "soma"
-
 extern char lexema[TAM_LEXEMA];
-
-
 extern int posicao; //Indica a posição atual do Lexer dentro do vetor entrada.
-
 extern int simbolo_lido; //Armazena o token atualmente reconhecido pelo Lexer.
 
 
-// FUNCOES DO LEXER
-/*
- * Analisa a entrada a partir da posição atual e reconhece
- * o próximo token.
- *
- * Ao terminar:
- *
- * - simbolo_lido recebe o tipo do token;
- * - lexema recebe o texto encontrado;
- * - posicao avança na entrada.
- */
+// ------------------------------------------- FUNCOES DO LEXER
+
 void obtenha_simbolo(void);
+int palavra_reservada(char palavra[]);
+void erro_lexico(char caractere);
 
 
-/*
- * Recebe uma palavra reconhecida pelo Lexer e verifica
- * se ela é uma palavra reservada da linguagem.
- *
- * Caso seja, retorna o token correspondente.
- *
- * Caso contrário, retorna IDENTIFICADOR.
- */
-int palavra_reservada(
-        char palavra[]
-);
+// ------------------------------------------- FUNCOES DO PARSER
 
-
-/*
- * Exibe uma mensagem de erro quando o Lexer encontra
- * um caractere que não pode formar um token válido.
- */
-void erro_lexico(
-        char caractere
-);
-
-
-// FUNCOES DO PARSER
-
-
-/*
- * Verifica se o token atual é o token esperado.
- *
- * Se estiver correto, solicita ao Lexer o próximo token.
- * Caso contrário, gera erro sintático.
- */
-void consumir(
-        int token
-);
-
-
-// Exibe uma mensagem informando que o token atual
-// não era esperado pela gramática.
-
+void consumir(int token);
 void erro_sintatico(void);
 
 
-//  Cada função abaixo representa um símbolo não terminal
-//  da gramática utilizada pelo Parser.
+// Cada função abaixo representa um símbolo não terminal da gramática utilizada pelo Parser.
 
 
 void programa(void); //Reconhece a estrutura completa de um programa.
-
 void secao_var(void); //Reconhece a seção de declaração de variáveis.
-
 void decl_var(void); //Reconhece uma declaração de variável.
-
 void tipo(void); //Reconhece os tipos integer, real ou char.
-
 void bloco(void); //Reconhece um bloco delimitado por begin e end.
-
 void lista_comandos(void); //Reconhece uma sequência de zero ou mais comandos.
-
 void comando(void); //Identifica e encaminha o tipo de comando encontrado.
-
 void atribuicao(void); //Reconhece um comando de atribuição.
-
 void iteracao(void); //Reconhece comandos de repetição while e repeat.
-
 void decisao(void); //Reconhece estruturas condicionais if/then/else.
-
 void escrita(void); //Reconhece o comando write.
 
 
-// FUNCOES PARA EXPRESSOES: As expressões foram divididas em níveis para respeitar
-// precedência dos operadores da linguagem.
+// ------------------------------------------- FUNCOES PARA EXPRESSOES: 
+//As expressões foram divididas em níveis para respeitar precedência dos operadores da linguagem.
 
 
 void expressao(void); //Inicia a análise de uma expressão.
-
 void expr_logica(void); //Reconhece operadores lógicos: and e or.
-
 void expr_relacional(void); //Reconhece operadores relacionais.
-
 void expr_aditiva(void); //Reconhece operações de adição e subtração.
-
 void expr_multiplicativa(void); //Reconhece multiplicação e divisões.
-
 void expr_basica(void); //Reconhece os elementos básicos de uma expressão.
