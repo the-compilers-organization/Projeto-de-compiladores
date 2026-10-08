@@ -82,6 +82,12 @@ O repositório está organizado da seguinte forma:
 Projeto-de-compiladores/
 │
 ├── .vscode/
+|
+├── docs/
+│   ├── instrucoes_professor/
+│   │   └── MicroPascal-parte1.pdf
+│   ├── documentacao_tecnica/
+│   └── images/
 │
 ├── src/
 │   ├── define.h
@@ -94,7 +100,15 @@ Projeto-de-compiladores/
 └── README.md
 ```
 
-A pasta `src/` concentra os arquivos responsáveis pela implementação do analisador.
+A pasta `src/` concentra o código-fonte do analisador. A pasta `docs/` reúne os materiais de apoio, separados por finalidade: `instrucoes_professor/` para as instruções do professor, `documentacao_tecnica/` para a documentação técnica e `images/` para imagens utilizadas na documentação. As pastas e os arquivos indicados devem existir no repositório para que os caminhos funcionem.
+
+---
+
+# 📚 Organização da Documentação
+
+- **`docs/instrucoes_professor/`** — enunciados, requisitos e materiais fornecidos pelo professor.
+- **`docs/documentacao_tecnica/`** — documentação técnica do funcionamento e da implementação do projeto.
+- **`docs/images/`** — imagens e diagramas utilizados nos documentos.
 
 ---
 
@@ -1187,6 +1201,12 @@ Após a compilação, a estrutura será aproximadamente:
 Projeto-de-compiladores/
 │
 ├── .vscode/
+|
+├── docs/
+│   ├── instrucoes_professor/
+│   │   └── MicroPascal-parte1.pdf
+│   ├── documentacao_tecnica/
+│   └── images/
 │
 ├── src/
 │   ├── define.h
@@ -1516,6 +1536,9 @@ Portanto, `end.` apenas encerra a entrada. Ele não faz com que um código incor
 | `src/parser.c` | Verificar se os tokens obedecem à gramática |
 | `src/main.c` | Receber a entrada e coordenar Lexer e Parser |
 | `.gitignore` | Definir arquivos que não serão versionados |
+| `docs/assigninstrucoes_professorment/` | Armazenar os documentos e as instruções do professor |
+| `docs/documentacao_tecnica/` | Reunir a documentação técnica |
+| `docs/images/` | Armazenar imagens e diagramas da documentação |
 | `README.md` | Documentar o projeto |
 
 A principal separação é:
