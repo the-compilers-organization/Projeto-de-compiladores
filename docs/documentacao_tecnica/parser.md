@@ -442,7 +442,7 @@ end.
 
 ---
 
-## 8. Pontos de atenção e melhorias
+## 8. Pontos de atenção
 
 1. **`var` é obrigatório.** `secao_var()` faz `consumir(VAR)` incondicionalmente, então `program P; begin end.` é rejeitado. Em Pascal a seção é opcional. Correção:
 
