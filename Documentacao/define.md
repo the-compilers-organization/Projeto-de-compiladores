@@ -275,28 +275,9 @@ void expr_basica(void);
 
 ---
 
-## 7. Observações e boas práticas
 
-1. **Include guard**: o arquivo não tem proteção contra inclusão dupla. Funciona hoje porque cada `.c` inclui o cabeçalho uma vez, mas é recomendável adicionar no topo e no fim:
-
-   ```c
-   #ifndef DEFINE_H
-   #define DEFINE_H
-   /* ... conteúdo ... */
-   #endif
-   ```
-
-2. **`#define` vs `enum`**: os tokens poderiam ser um `enum`, que numera automaticamente e evita erros de valores repetidos. `#define` funciona, mas exige cuidado ao inserir um novo token no meio da lista.
-
-3. **Nomes genéricos**: constantes como `IF`, `DO`, `REAL` e `CHAR` podem colidir com macros de bibliotecas do sistema (por exemplo, `<windows.h>`). Se houver conflitos, prefixe-as (`TK_IF`, `TK_REAL`).
-
-4. **Ao adicionar um token novo**, são três lugares a alterar:
-   - `define.h`: criar a constante com um número novo;
-   - `lexer.c`: fazer o lexer reconhecê-lo;
-   - `parser.c`: usá-lo na regra da gramática correspondente.
-
-5. **Compilação**: o `define.h` não é compilado separadamente; ele é incluído pelos `.c`:
-
+> **Compilação**: o `define.h` não é compilado separadamente; ele é incluído pelos `.c`:
+>
    ```
    gcc main.c lexer.c parser.c -o micropascal
    ```
