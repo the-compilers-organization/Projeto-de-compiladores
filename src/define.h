@@ -1,11 +1,3 @@
-
-// Este arquivo possui as definições utilizadas em todo o projeto. Nele ficam:
-// - constantes de tamanho;
-// - códigos dos tokens reconhecidos pelo Lexer;
-// - declaração das variáveis globais compartilhadas;
-// - protótipos das funções do Lexer;
-// - protótipos das funções do Parser.
-
 #define TAM 10000
 #define TAM_LEXEMA 100 //caracteres que podem ser armazenados  num lexema reconhecido pelo Lexer.
 
@@ -18,52 +10,46 @@
 
 // OPERADORES RELACIONAIS
 
-
-#define MENOR 5 //Operador <
-#define MAIOR 6 //Operador >
-#define MENOR_IGUAL 7 //Operador <=
-#define MAIOR_IGUAL 8 //Operador >=
-#define IGUAL 9 //Operador =
+#define MENOR 5 
+#define MAIOR 6 
+#define MENOR_IGUAL 7
+#define MAIOR_IGUAL 8 
+#define IGUAL 9 
 #define DIFERENTE 10 //Operador <>
 
 
 // OPERADORES ARITMETICOS
 
-
-#define MAIS 11 //Operador de adição +
-#define MENOS 12 //Operador de subtração -
-#define MULT 13 //Operador de multiplicação *
-#define DIV_REAL 14 //Operador de divisão real /
+#define MAIS 11 
+#define MENOS 12 
+#define MULT 13 
+#define DIV_REAL 14
 
 
 // OPERADORES REPRESENTADOS POR PALAVRAS RESERVADAS
 
-
-#define DIV 15 //Operador de divisão inteira div
-#define AND 16 //Operador lógico and
-#define OR 17 //Operador lógico or
-#define NOT 18 //Operador lógico not
+#define DIV 15 
+#define AND 16 
+#define OR 17 
+#define NOT 18
 
 
 // OPERADOR DE ATRIBUICAO
-
 
 #define ATRIBUICAO 19 //Operador :=
 
 
 // SIMBOLOS ESPECIAIS
 
-
-#define ABRE_PAR 20 //Símbolo (
-#define FECHA_PAR 21 //Símbolo )
-#define VIRGULA 22 //Símbolo ,
-#define PONTO_VIRGULA 23 //Símbolo ;
-#define PONTO 24 //Símbolo .
-#define DOIS_PONTOS 25 //Símbolo :
+#define ABRE_PAR 20 
+#define FECHA_PAR 21
+#define VIRGULA 22 
+#define PONTO_VIRGULA 23
+#define PONTO 24 
+#define DOIS_PONTOS 25
 
 
 // PALAVRAS RESERVADAS
-
 
 #define PROGRAM 26
 #define IF 27
@@ -85,8 +71,6 @@
 
 
 // ------------------------------------------- VARIAVEIS GLOBAIS COMPARTILHADAS: 
-// O modificador extern informa que essas variáveis existem em outro arquivo. A definição real será feita em main.c.
-// Armazena todo o código-fonte que será analisado.
 
 extern char entrada[TAM];
 extern char lexema[TAM_LEXEMA];
@@ -109,7 +93,6 @@ void erro_sintatico(void);
 
 // Cada função abaixo representa um símbolo não terminal da gramática utilizada pelo Parser.
 
-
 void programa(void); //Reconhece a estrutura completa de um programa.
 void secao_var(void); //Reconhece a seção de declaração de variáveis.
 void decl_var(void); //Reconhece uma declaração de variável.
@@ -124,8 +107,6 @@ void escrita(void); //Reconhece o comando write.
 
 
 // ------------------------------------------- FUNCOES PARA EXPRESSOES: 
-//As expressões foram divididas em níveis para respeitar precedência dos operadores da linguagem.
-
 
 void expressao(void); //Inicia a análise de uma expressão.
 void expr_logica(void); //Reconhece operadores lógicos: and e or.

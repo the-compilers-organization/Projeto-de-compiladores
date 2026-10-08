@@ -85,21 +85,12 @@ void obtenha_simbolo(void){
         posicao += 1;
     }
 
-    // Se encontrar '\0', chegamos ao final do código-fonte.
     if(entrada[posicao] == '\0'){
         strcpy(lexema, "FIM");
         simbolo_lido = FIM;
         return;
     }
 
-    /*
-     * Reconhecimento de identificadores e palavras
-     * reservadas.
-     *
-     * Primeiro o Lexer lê a palavra completa.
-     * Depois palavra_reservada() determina se ela é
-     * reservada ou um IDENTIFICADOR.
-     */
     if(isalpha((unsigned char)entrada[posicao]) || entrada[posicao] == '_'){
         i = 0;
 
@@ -115,15 +106,6 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /*
-     * Reconhecimento de números.
-     *
-     * Exemplos:
-     *
-     *      25    -> INTEIRO_LITERAL
-     *      25.5  -> REAL_LITERAL
-     */
     if(isdigit((unsigned char)entrada[posicao])){
         i = 0;
 
@@ -135,10 +117,6 @@ void obtenha_simbolo(void){
             posicao += 1;
         }
 
-        /*
-         * Se após os dígitos existir um ponto seguido
-         * por outro dígito, temos um REAL_LITERAL.
-         */
         if(entrada[posicao] == '.' && isdigit((unsigned char)entrada[posicao + 1])){
 
             if(i < TAM_LEXEMA - 1){
@@ -167,11 +145,7 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /*
-     * Reconhecimento de número real começando por ponto.
-     */
-    if(entrada[posicao] == '.' &&
+    if(entrada[posicao] == '.' && //Reconhecimento de número real começando por ponto
         isdigit((unsigned char)entrada[posicao + 1])){
         i = 0;
         lexema[i] = '.';
@@ -193,27 +167,12 @@ void obtenha_simbolo(void){
         return;
     }
 
-
-    /*
-     * Reconhecimento de CHAR_LITERAL.
-     *
-     * Exemplos:
-     *
-     *      'a'
-     *      '5'
-     *      '\n'
-     *      '\t'
-     */
     if(entrada[posicao] == '\''){
         i = 0;
         lexema[i] = entrada[posicao];
         i += 1;
         posicao += 1;
 
-        /*
-         * Verifica os caracteres especiais
-         * \n e \t.
-         */
         if(entrada[posicao] == '\\'){
             lexema[i] = entrada[posicao];
             i += 1;
@@ -236,7 +195,6 @@ void obtenha_simbolo(void){
             i += 1;
             posicao += 1;
         }
-
 
         /*
          * Depois do caractere é obrigatório

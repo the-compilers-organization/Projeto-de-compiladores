@@ -184,14 +184,12 @@ void expr_logica(void){
     expr_relacional();
 
     while(simbolo_lido == OR || simbolo_lido == AND){
-
         if(simbolo_lido == OR){
             consumir(OR);
         }else{
             consumir(AND);
         }
         expr_relacional();
-
     }
 }
 
@@ -199,16 +197,9 @@ void expr_logica(void){
 void expr_relacional(void){
     expr_aditiva();
 
-    while(
-        simbolo_lido == IGUAL ||
-        simbolo_lido == DIFERENTE ||
-        simbolo_lido == MENOR ||
-        simbolo_lido == MAIOR ||
-        simbolo_lido == MENOR_IGUAL ||
-        simbolo_lido == MAIOR_IGUAL){
-
+    while(simbolo_lido == IGUAL || simbolo_lido == DIFERENTE || simbolo_lido == MENOR || simbolo_lido == MAIOR ||
+          simbolo_lido == MENOR_IGUAL || simbolo_lido == MAIOR_IGUAL){
         int operador = simbolo_lido;
-
         consumir(operador);
         expr_aditiva();
     }
@@ -228,7 +219,6 @@ void expr_aditiva(void){
 
 
 void expr_multiplicativa(void){
-
     expr_basica();
 
     while(simbolo_lido == MULT || simbolo_lido == DIV_REAL || simbolo_lido == DIV){
