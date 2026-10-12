@@ -89,28 +89,22 @@ void lista_comandos(void){
 void comando(void){
 
     if(simbolo_lido == BEGIN_TOKEN){
-        
         bloco();
         consumir(PONTO_VIRGULA);
 
     }else if(simbolo_lido == IDENTIFICADOR){
-
         atribuicao();
 
     }else if(simbolo_lido == WHILE || simbolo_lido == REPEAT){
-
         iteracao();
 
     }else if(simbolo_lido == IF){
-
         decisao();
 
     }else if(simbolo_lido == WRITE){
-
         escrita();
 
     }else{
-
         erro_sintatico();
     }
 }
