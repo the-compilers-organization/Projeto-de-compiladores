@@ -117,6 +117,13 @@ void atribuicao(void){
     consumir(PONTO_VIRGULA);
 }
 
+void escrita(void){
+    consumir(WRITE);
+    consumir(ABRE_PAR);
+    expressao();
+    consumir(FECHA_PAR);
+    consumir(PONTO_VIRGULA);
+}
 
 void iteracao(void){
     if(simbolo_lido == WHILE){
@@ -149,13 +156,7 @@ void decisao(void){
 }
 
 
-void escrita(void){
-    consumir(WRITE);
-    consumir(ABRE_PAR);
-    expressao();
-    consumir(FECHA_PAR);
-    consumir(PONTO_VIRGULA);
-}
+
 
 // --------------------------------- Expressoes
 void expressao(void){
