@@ -444,19 +444,12 @@ end.
 
 ## 8. Pontos de atenção
 
-1. **`var` é obrigatório.** `secao_var()` faz `consumir(VAR)` incondicionalmente, então `program P; begin end.` é rejeitado. Em Pascal a seção é opcional. Correção:
-
-   ```c
-   void secao_var(void){
-       if(simbolo_lido == VAR){
-           consumir(VAR);
-           while(simbolo_lido == IDENTIFICADOR){
-               decl_var();
-           }
-       }
-   }
-   ```
-   (Seguir a gramática ao pé da letra também é defensável, desde que seja uma escolha consciente.)
+1. **`var` é obrigatório (decisão de projeto).** `secao_var()` faz `consumir(VAR)`
+   incondicionalmente, porque a gramática do enunciado define
+   `<secao_var> ::= var {<decl_var>}*` e `<programa>` sempre a inclui. Por isso
+   `program P; begin end.` é rejeitado. Em Pascal padrão a seção é opcional, mas
+   optamos por seguir a gramática fornecida. Todos os exemplos do enunciado
+   declaram `var`, então o comportamento é compatível com eles.
 
 2. **`not` abrange a expressão inteira.** Em `expr_basica`, `not` chama `expressao()`. Assim `not a and b` é lido como `not (a and b)`. O mais usual é o `not` ser aplicado só ao operando seguinte:
 
