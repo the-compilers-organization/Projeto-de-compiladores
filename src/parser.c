@@ -2,12 +2,11 @@
 #include <stdlib.h>
 #include "define.h"
 
-
+// --------------------------------- funções de apoio
 void erro_sintatico(void){
     printf("Erro de sintaxe no token [%s]\n", lexema);
     exit(1);
 }
-
 
 void consumir(int token){
     if(simbolo_lido == token){
@@ -17,7 +16,7 @@ void consumir(int token){
     }
 }
 
-
+// --------------------------------- Estrutura do Programa
 void programa(void){
     consumir(PROGRAM);
     consumir(IDENTIFICADOR);
@@ -27,15 +26,12 @@ void programa(void){
     consumir(PONTO);
 }
 
-
 void secao_var(void){
     consumir(VAR);
-
     while(simbolo_lido == IDENTIFICADOR){
         decl_var();
     }
 }
-
 
 void decl_var(void){
     consumir(IDENTIFICADOR);
@@ -49,7 +45,6 @@ void decl_var(void){
     tipo();
     consumir(PONTO_VIRGULA);
 }
-
 
 void tipo(void){
     if(simbolo_lido == INTEGER){
@@ -66,7 +61,7 @@ void tipo(void){
     }
 }
 
-
+// --------------------------------- Blocos e Comandos
 void bloco(void){
     consumir(BEGIN_TOKEN);
     lista_comandos();
@@ -130,24 +125,18 @@ void atribuicao(void){
 
 
 void iteracao(void){
-
     if(simbolo_lido == WHILE){
-
         consumir(WHILE);
         expressao();
         consumir(DO);
         comando();
-
     }else if(simbolo_lido == REPEAT){
-
         consumir(REPEAT);
         comando();
         consumir(UNTIL);
         expressao();
         consumir(PONTO_VIRGULA);
-
     }else{
-
         erro_sintatico();
     }
 }
@@ -174,7 +163,7 @@ void escrita(void){
     consumir(PONTO_VIRGULA);
 }
 
-
+// --------------------------------- Expressoes
 void expressao(void){
     expr_logica();
 }
@@ -210,7 +199,6 @@ void expr_aditiva(void){
     expr_multiplicativa();
 
     while(simbolo_lido == MAIS || simbolo_lido == MENOS){
-
         int operador = simbolo_lido;
         consumir(operador);
         expr_multiplicativa();
@@ -220,7 +208,6 @@ void expr_aditiva(void){
 
 void expr_multiplicativa(void){
     expr_basica();
-
     while(simbolo_lido == MULT || simbolo_lido == DIV_REAL || simbolo_lido == DIV){
         int operador = simbolo_lido;
         consumir(operador);
@@ -232,30 +219,24 @@ void expr_multiplicativa(void){
 void expr_basica(void){
 
     if(simbolo_lido == ABRE_PAR){
-
         consumir(ABRE_PAR);
         expressao();
         consumir(FECHA_PAR);
 
     }else if(simbolo_lido == NOT){
-
         consumir(NOT);
         expressao();
 
     }else if( simbolo_lido == INTEIRO_LITERAL){
-
         consumir(INTEIRO_LITERAL);
 
     }else if(simbolo_lido == REAL_LITERAL){
-
         consumir(REAL_LITERAL);
 
     }else if(simbolo_lido == CHAR_LITERAL){
-
         consumir(CHAR_LITERAL);
 
     }else if(simbolo_lido == IDENTIFICADOR){
-
         consumir(IDENTIFICADOR);
 
     }else{
