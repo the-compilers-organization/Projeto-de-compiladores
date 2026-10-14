@@ -1,58 +1,54 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "define.h"
 
-
-char entrada[TAM]; //Armazena todo o código-fonte recebido.
+/* Definicoes unicas das variaveis compartilhadas. */
+char entrada[TAM];
 char lexema[TAM_LEXEMA];
-int posicao = 0; //Indica a posição atual dentro de entrada.
-int simbolo_lido;
+int posicao = 0;
+int simbolo_lido = FIM;
 
+int main(void){
+    int caractere;
+    size_t tamanho = 0;
 
-int main(){
-    char linha[500]; //Armazena temporariamente cada linha digitada pelo usuário.
-    int i = 0; //Controla a posição utilizada para preencher o vetor entrada.
-    int j; //Controla a posição utilizada para percorrer cada linha recebida.
-    int tamanho_linha; //Armazena o tamanho da linha digitada.
-    int fim = 0;
+    printf("\n================================================================================================\n");
+    printf("Digite ou cole o codigo MicroPascal:\n");
+    printf("Para finalizar, pressione Enter e Ctrl+Z e Enter (Windows)\n");
+    printf("ou Enter e Ctrl+D (Linux/macOS)\n");
+    printf("================================================================================================\n\n");
 
-    printf("Digite o programa MicroPascal:\n\n");
-
-    while(fim == 0 && fgets(linha, sizeof(linha),stdin) != NULL){
-        j = 0;
-
-        while(linha[j] != '\0' && i < TAM - 1){
-            entrada[i] = linha[j];
-            i += 1;
-            j += 1;
+    /* Lemos ate EOF: o Parser detecta tokens extras. */
+    while((caractere = getchar()) != EOF){
+        if(tamanho >= TAM - 1){
+            printf("\n================================================================================================\n");
+            fprintf(stderr, "Erro: codigo-fonte excede o limite de %d caracteres.\n", TAM - 1);
+            printf("================================================================================================\n\n");
+            return EXIT_FAILURE;
         }
 
-        tamanho_linha = strlen(linha);
-
-        while(tamanho_linha > 0 && (linha[tamanho_linha - 1] == '\n' || linha[tamanho_linha - 1] == '\r')){
-            tamanho_linha -= 1;
-        }
-
-        if(tamanho_linha >= 4){
-            if(linha[tamanho_linha - 4] == 'e' && linha[tamanho_linha - 3] == 'n' &&
-               linha[tamanho_linha - 2] == 'd' && linha[tamanho_linha - 1] == '.'){
-                fim = 1;
-            }
-        }
+        entrada[tamanho++] = (char)caractere;
     }
 
-    entrada[i] = '\0';
+    if(ferror(stdin)){
+        printf("\n================================================================================================\n");
+        fprintf(stderr, "Erro ao ler a entrada.\n");
+        printf("================================================================================================\n\n");
+        return EXIT_FAILURE;
+    }
+
+    entrada[tamanho] = '\0';
 
     obtenha_simbolo();
     programa();
 
-    if(simbolo_lido == FIM){
-        printf("\nPrograma sintaticamente valido.\n");
-    }else{
+    if(simbolo_lido != FIM){
         erro_sintatico();
     }
 
+    printf("\n================================================================================================\n");
+    puts("Programa sintaticamente valido.");
+    printf("================================================================================================\n\n");
 
-    return 0;
+    return EXIT_SUCCESS;
 }

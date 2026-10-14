@@ -71,7 +71,9 @@ int palavra_reservada(char palavra[]){
 
 
 void erro_lexico(char caractere){
-    printf("Erro lexico no caracter [%c]\n",caractere);
+    printf("\n================================================================================================\n");
+    printf("Erro léxico no caracter [%c]\n",caractere);
+    printf("================================================================================================\n\n");
     exit(1);
 }
 
@@ -80,9 +82,20 @@ void erro_lexico(char caractere){
 void obtenha_simbolo(void){
     int i;
 
-    while(entrada[posicao] == ' ' || entrada[posicao] == '\n' || 
-        entrada[posicao] == '\t' || entrada[posicao] == '\r'){
-        posicao += 1;
+    /* Espacos e comentarios de linha sao ignorados antes do proximo token. */
+    for(;;){
+        while(entrada[posicao] == ' ' || entrada[posicao] == '\n' ||
+              entrada[posicao] == '\t' || entrada[posicao] == '\r'){
+            posicao += 1;
+        }
+        if(entrada[posicao] == '/' && entrada[posicao + 1] == '/'){
+            posicao += 2;
+            while(entrada[posicao] != '\0' && entrada[posicao] != '\n'){
+                posicao += 1;
+            }
+            continue;
+        }
+        break;
     }
 
     if(entrada[posicao] == '\0'){
@@ -95,10 +108,13 @@ void obtenha_simbolo(void){
         i = 0;
 
         while(isalnum((unsigned char)entrada[posicao]) || entrada[posicao] == '_'){
-            if(i < TAM_LEXEMA - 1){
-                lexema[i] =entrada[posicao];
-                i += 1;
+            if(i >= TAM_LEXEMA - 1){
+                printf("\n================================================================================================\n");
+                fprintf(stderr, "Erro léxico: lexema excede o limite de %d caracteres.\n", TAM_LEXEMA - 1);
+                printf("================================================================================================\n\n");
+                exit(EXIT_FAILURE);
             }
+            lexema[i++] = entrada[posicao];
             posicao += 1;
         }
         lexema[i] = '\0';
@@ -110,27 +126,36 @@ void obtenha_simbolo(void){
         i = 0;
 
         while(isdigit((unsigned char)entrada[posicao])){
-            if(i < TAM_LEXEMA - 1){
-                lexema[i] = entrada[posicao];
-                i += 1;
+            if(i >= TAM_LEXEMA - 1){
+                printf("\n================================================================================================\n");
+                fprintf(stderr, "Erro léxico: lexema excede o limite de %d caracteres.\n", TAM_LEXEMA - 1);
+                printf("================================================================================================\n\n");
+                exit(EXIT_FAILURE);
             }
+            lexema[i++] = entrada[posicao];
             posicao += 1;
         }
 
         if(entrada[posicao] == '.' && isdigit((unsigned char)entrada[posicao + 1])){
 
-            if(i < TAM_LEXEMA - 1){
-                lexema[i] = '.';
-                i += 1;
+            if(i >= TAM_LEXEMA - 1){
+                printf("\n================================================================================================\n");
+                fprintf(stderr, "Erro léxico: lexema excede o limite de %d caracteres.\n", TAM_LEXEMA - 1);
+                printf("================================================================================================\n\n");
+                exit(EXIT_FAILURE);
             }
+            lexema[i++] = '.';
 
             posicao += 1;
 
             while(isdigit((unsigned char)entrada[posicao])){
-                if(i < TAM_LEXEMA - 1){
-                    lexema[i] = entrada[posicao];
-                    i += 1;
+                if(i >= TAM_LEXEMA - 1){
+                    printf("\n================================================================================================\n");
+                    fprintf(stderr, "Erro léxico: lexema excede o limite de %d caracteres.\n", TAM_LEXEMA - 1);
+                    printf("================================================================================================\n\n");
+                    exit(EXIT_FAILURE);
                 }
+                lexema[i++] = entrada[posicao];
                 posicao += 1;
             }
 
@@ -154,10 +179,13 @@ void obtenha_simbolo(void){
 
         while(isdigit((unsigned char)entrada[posicao])){
 
-            if(i < TAM_LEXEMA - 1){
-                lexema[i] = entrada[posicao];
-                i += 1;
+            if(i >= TAM_LEXEMA - 1){
+                printf("\n================================================================================================\n");
+                fprintf(stderr, "Erro léxico: lexema excede o limite de %d caracteres.\n", TAM_LEXEMA - 1);
+                printf("================================================================================================\n\n");
+                exit(EXIT_FAILURE);
             }
+            lexema[i++] = entrada[posicao];
             posicao += 1;
         }
 
@@ -188,7 +216,8 @@ void obtenha_simbolo(void){
 
         }else{
             //Caso normal: deve existir uma letra ou um dígito entre as aspas.
-            if(!isalpha((unsigned char)entrada[posicao]) && !isdigit((unsigned char)entrada[posicao])){
+            if(!isalpha((unsigned char)entrada[posicao]) &&
+               !isdigit((unsigned char)entrada[posicao]) && entrada[posicao] != '_'){
                 erro_lexico(entrada[posicao]);
             }
             lexema[i] = entrada[posicao];

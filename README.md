@@ -35,6 +35,7 @@ Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Univ
 :small_blue_diamond: [Exemplos de Código micro-Pascal](#7--exemplos-de-código-micro-pascal)  
 :small_blue_diamond: [Compilação](#8-️-compilação)  
 :small_blue_diamond: [Testando o Analisador](#9--testando-o-analisador)  
+:small_blue_diamond: [Suíte de Testes](#-suíte-de-testes)  
 :small_blue_diamond: [Resumo das Responsabilidades](#10--resumo-das-responsabilidades)  
 :small_blue_diamond: [Escopo](#-escopo)  
 :small_blue_diamond: [Referência](#-referência)  
@@ -95,12 +96,22 @@ Projeto-de-compiladores/
 │   ├── main.c
 │   └── parser.c
 │
+├── test/
+│   ├── 01_validos/
+│   ├── 02_erros_sintaticos/
+│   ├── 03_erros_lexicos/
+│   ├── 04_limites/
+│   ├── executar_testes.c
+│   ├── manifesto.csv
+│   ├── testes_manuais_micropascal.md
+│   └── README.md
+│
 ├── .gitignore
 │
 └── README.md
 ```
 
-A pasta `src/` concentra o código-fonte do analisador. A pasta `docs/` reúne os materiais de apoio, separados por finalidade: `instrucoes_professor/` para as instruções do professor, `documentacao_tecnica/` para a documentação técnica e `images/` para imagens utilizadas na documentação. As pastas e os arquivos indicados devem existir no repositório para que os caminhos funcionem.
+A pasta `src/` concentra o código-fonte do analisador. A pasta `test/` reúne os casos de teste, o executor em C e as instruções de validação. A pasta `docs/` reúne os materiais de apoio, separados por finalidade: `instrucoes_professor/` para as instruções do professor, `documentacao_tecnica/` para a documentação técnica e `images/` para imagens utilizadas na documentação. As pastas e os arquivos indicados devem existir no repositório para que os caminhos funcionem.
 
 ---
 
@@ -155,16 +166,16 @@ O Lexer reconhece:
 
 Entre suas responsabilidades estão:
 
-- ignorar espaços, tabulações e quebras de linha;
+- ignorar espaços, tabulações, quebras de linha, retorno de carro e comentários `//` até o fim da linha;
 - reconhecer identificadores;
 - diferenciar identificadores de palavras reservadas;
 - reconhecer números inteiros;
 - reconhecer números reais;
-- reconhecer literais do tipo `char`;
+- reconhecer literais do tipo `char`, inclusive `'_'`, `'\n'` e `'\t'`;
 - reconhecer operadores;
 - reconhecer símbolos especiais;
 - identificar o fim da entrada;
-- detectar erros léxicos.
+- detectar erros léxicos e lexemas maiores que a capacidade do vetor `lexema`.
 
 ---
 
@@ -218,21 +229,18 @@ expressao()
 
 ## `src/main.c`
 
-Responsável por iniciar e coordenar a execução do analisador.
+É o ponto de entrada do analisador. Ele:
 
-O arquivo:
+1. Lê todo o código-fonte da **entrada padrão (`stdin`) até o fim da entrada (`EOF`)**, usando `getchar()`.
+2. Armazena os caracteres em `entrada`, respeitando o limite `TAM - 1` e finalizando a string com `\0`.
+3. Chama `obtenha_simbolo()` para obter o primeiro token.
+4. Chama `programa()` para iniciar o Parser descendente recursivo.
+5. Confere se o token seguinte ao programa é `FIM`, rejeitando conteúdo adicional após `end.`.
+6. Exibe `Programa sintaticamente valido.` se a análise terminar sem erros.
 
-1. recebe o código-fonte linha por linha;
-2. armazena o código no vetor `entrada`;
-3. utiliza `end.` no final de uma linha como sinal de término da digitação;
-4. solicita ao Lexer o primeiro token;
-5. inicia o Parser através da função `programa()`;
-6. verifica se toda a entrada foi analisada;
-7. informa se o programa está sintaticamente válido ou se ocorreu algum erro.
+A leitura da entrada termina em `EOF`. Após a análise do programa, o Parser verifica se existem tokens adicionais.
 
-A leitura é realizada com `fgets()`. Dessa forma, o usuário pode pressionar **Enter** normalmente ao final de cada linha. Quando a última linha do programa termina em `end.`, basta pressionar **Enter uma única vez** para encerrar a digitação e iniciar a análise. Não é necessário utilizar .
-
-O `main.c`, portanto, funciona como ponto de integração entre o **Lexer** e o **Parser**.
+Para uso interativo, finalize com **Enter** e **Ctrl+D** (Linux/macOS) ou **Enter** e **Ctrl+Z e Enter** (Windows, conforme o terminal). Para arquivos `.pas`, prefira redirecionar a entrada, como demonstrado adiante.
 
 ---
 
@@ -597,6 +605,7 @@ Exemplos:
 'c'
 '0'
 '9'
+'_'
 '\n'
 '\t'
 ```
@@ -647,6 +656,14 @@ O Lexer ignora os seguintes caracteres quando aparecem entre lexemas:
 
 Esses caracteres não geram tokens.
 
+### Comentários de linha
+
+O Lexer também ignora comentários iniciados por `//`, até a próxima quebra de linha ou o fim da entrada:
+
+```pascal
+x := 10; // comentário ignorado pelo Lexer
+```
+
 ---
 
 ## 1.13 ⚠️ Erros Léxicos
@@ -676,7 +693,7 @@ lexer.c
 A mensagem segue o formato:
 
 ```text
-Erro lexico no caracter [$]
+Erro léxico no caracter [$]
 ```
 
 ---
@@ -876,6 +893,10 @@ x
 (x + 5)
 not x
 ```
+
+---
+
+O Parser reconhece a subtração binária, como em `10 - 5`. O sinal negativo unário, como em `-5`, não faz parte das expressões aceitas nesta implementação.
 
 ---
 
@@ -1175,130 +1196,89 @@ Esse exemplo utiliza:
 
 ---
 
-# 8. 🛠️ Compilação
+# 8. 🛠️ Compilação e Execução
 
-Os arquivos-fonte estão armazenados dentro da pasta:
+Execute os comandos **na raiz do repositório**. É necessário ter o GCC instalado e disponível no terminal.
 
-```text
-src/
+## 8.1 Windows — PowerShell
+
+**Passo 1 — Compilar o analisador MicroPascal.** O GCC compila `main.c`, `lexer.c` e `parser.c` e gera `micropascal.exe`:
+
+```powershell
+gcc -std=c11 -Wall -Wextra -Wpedantic src/main.c src/lexer.c src/parser.c -o micropascal.exe
 ```
 
-Portanto, a partir da raiz do repositório:
+**Passo 2 — Iniciar a execução interativa.** O programa aguardará o código MicroPascal digitado ou colado no terminal:
 
-```text
-Projeto-de-compiladores/
+```powershell
+.\micropascal.exe
 ```
 
-compile utilizando:
-
-```bash
-gcc src/main.c src/lexer.c src/parser.c -o main
-```
-
-Após a compilação, a estrutura será aproximadamente:
-
-```text
-Projeto-de-compiladores/
-│
-├── .vscode/
-|
-├── docs/
-│   ├── instrucoes_professor/
-│   │   └── MicroPascal-parte1.pdf
-│   ├── documentacao_tecnica/
-│   └── images/
-│
-├── src/
-│   ├── define.h
-│   ├── lexer.c
-│   ├── main.c
-│   └── parser.c
-│
-├── .gitignore
-├── README.md
-│
-└── main.exe
-```
-
----
-
-## 8.1 ▶️ Execução no Windows
-
-No Windows, execute:
-
-```bash
-.\main.exe
-```
-
-O programa exibirá:
-
-```text
-Digite o programa MicroPascal:
-```
-
-Em seguida, digite o código micro-Pascal que deseja analisar.
-
-> ⚠️ **Importante:** o analisador primeiro recebe o código-fonte completo e somente depois inicia a análise léxica e sintática.
-
-O código pode possuir várias linhas. A `main.c` utiliza `fgets()` para receber uma linha de cada vez e armazena todas elas no vetor `entrada`.
-
-Durante a digitação, pressione **Enter** normalmente ao final de cada linha.
-
-A leitura é encerrada quando uma linha termina com:
+**Passo 3 — Digitar ou colar o código-fonte.** Exemplo:
 
 ```pascal
+program Teste;
+var
+    x : integer;
+begin
+    x := 10;
+    write(x);
 end.
 ```
 
-Depois de digitar `end.`, pressione **Enter uma única vez**. O programa encerra a leitura e inicia o Lexer e o Parser.
+**Passo 4 — Finalizar a entrada.** Após a última linha, pressione **Enter**, depois **Ctrl+Z** e **Enter** no terminal Windows que ofereça esse comportamento de `EOF`. O analisador somente inicia a verificação após receber o fim da entrada. A sequência `end.` encerra o programa MicroPascal na gramática, mas **não encerra a leitura do terminal**.
 
-Ou seja:
+Saída esperada para o exemplo:
 
 ```text
-Código MicroPascal
-        ↓
-digitação linha por linha
-        ↓
-      end.
-        ↓
-      Enter
-        ↓
-   Lexer + Parser
-        ↓
-Resultado da análise
+Programa sintaticamente valido.
 ```
 
-> O reconhecimento de `end.` pela `main.c` serve apenas para indicar que a digitação do código-fonte terminou. A validação sintática continua sendo responsabilidade do Parser.
+## 8.2 Linux/macOS — Terminal
 
----
-
-## 8.2 ▶️ Execução no Linux/macOS
-
-Execute:
+**Passo 1 — Compilar o analisador:**
 
 ```bash
-./main
+gcc -std=c11 -Wall -Wextra -Wpedantic src/main.c src/lexer.c src/parser.c -o micropascal
 ```
 
-A forma de fornecer o código é a mesma utilizada no Windows.
+**Passo 2 — Executar o analisador:**
 
-Digite o programa linha por linha. Quando chegar à última linha:
-
-```pascal
-end.
+```bash
+./micropascal
 ```
 
-pressione **Enter uma única vez**.
+**Passo 3 — Digitar ou colar o programa MicroPascal.** Após a última linha, pressione **Enter** e **Ctrl+D** para enviar `EOF` (o comportamento exato pode variar conforme o terminal).
 
-A `main.c` encerra a leitura do código-fonte e inicia automaticamente a análise léxica e sintática.
+## 8.3 Executar um arquivo `.pas` existente
+
+É possível testar um arquivo da pasta `test/` sem digitar seu conteúdo.
+
+**Windows — CMD:** abra o Prompt de Comando na raiz do projeto e execute:
+
+```cmd
+micropascal.exe < test\01_validos\001_vazio.pas
+```
+
+**Windows — PowerShell:** para utilizar o redirecionamento `<`, invoque o interpretador CMD:
+
+```powershell
+cmd /c ".\micropascal.exe < test\01_validos\001_vazio.pas"
+```
+
+**Linux/macOS:**
+
+```bash
+./micropascal < test/01_validos/001_vazio.pas
+```
+
+O operador `<` fornece o conteúdo do arquivo como entrada padrão (`stdin`), até `EOF`. O arquivo `.pas` **não é executado**: o projeto valida apenas sua estrutura léxica e sintática.
 
 ---
 
 # 9. 🧪 Testando o Analisador
 
-Após executar o programa, forneça um código escrito na linguagem micro-Pascal.
-
-Por exemplo:
+## 9.1 ✅ Programa válido
 
 ```pascal
 program Teste;
@@ -1310,191 +1290,13 @@ begin
 end.
 ```
 
-Depois de digitar:
-
-```pascal
-end.
-```
-
-pressione apenas:
-
-```text
-Enter
-```
-
-Um exemplo da interação completa é:
-
-```text
-Digite o programa MicroPascal:
-
-program Teste;
-var
-    x : integer;
-begin
-    x := 10;
-    write(x);
-end.
-
-Programa sintaticamente valido.
-```
-
-O fluxo da análise é:
-
-```text
-Código-fonte completo
-        ↓
-       Lexer
-        ↓
-      Tokens
-        ↓
-      Parser
-        ↓
-Verificação da gramática
-        ↓
-     Resultado
-```
-
-Se todo o código estiver de acordo com a gramática, o resultado esperado será:
+Saída esperada:
 
 ```text
 Programa sintaticamente valido.
 ```
 
----
-
-## 9.1 ⌨️ Como a entrada é encerrada
-
-A `main.c` identifica o término da digitação quando encontra `end.` no final da linha.
-
-A leitura é feita linha por linha utilizando:
-
-```c
-fgets(
-    linha,
-    sizeof(linha),
-    stdin
-)
-```
-
-Cada linha recebida é copiada para o vetor:
-
-```c
-entrada
-```
-
-A leitura continua enquanto o final do programa ainda não tiver sido encontrado.
-
-De forma simplificada:
-
-```c
-while(
-    fim == 0 &&
-    fgets(
-        linha,
-        sizeof(linha),
-        stdin
-    ) != NULL
-){
-    /*
-     * Armazena a linha em entrada
-     * e verifica se ela termina em "end.".
-     */
-}
-```
-
-Quando a linha termina em:
-
-```pascal
-end.
-```
-
-a variável:
-
-```c
-fim
-```
-
-recebe:
-
-```c
-1
-```
-
-Ao retornar à condição do `while`, `fim == 0` passa a ser falso. Por causa da avaliação de curto-circuito do operador `&&`, outro `fgets()` não é executado.
-
-Assim, após digitar `end.`, basta pressionar **Enter uma única vez** para que a leitura seja encerrada.
-
----
-
-## 9.2 🔎 Por que `end.` encerra a digitação?
-
-A gramática do projeto define o programa como:
-
-```text
-<programa> ::= program IDENTIFICADOR ; <secao_var> <bloco> .
-```
-
-e o bloco como:
-
-```text
-<bloco> ::= begin <lista_comandos> end
-```
-
-Portanto, o bloco principal é encerrado por:
-
-```pascal
-end.
-```
-
-A `main.c` utiliza essa característica como uma convenção para identificar que o usuário terminou de fornecer o código-fonte.
-
-É importante separar duas responsabilidades:
-
-```text
-main.c
-   ↓
-detecta o término da digitação
-   ↓
-Lexer
-   ↓
-transforma caracteres em tokens
-   ↓
-Parser
-   ↓
-verifica se os tokens obedecem à gramática
-```
-
-Portanto, encontrar `end.` não significa que o programa já foi considerado sintaticamente válido. A validade continua sendo determinada pelo Parser.
-
----
-
-## 9.3 ✅ Exemplo de Programa Válido
-
-Entrada:
-
-```pascal
-program Teste;
-var
-    x : integer;
-begin
-    x := 10;
-    write(x);
-end.
-```
-
-Após digitar `end.`, pressione **Enter uma única vez**.
-
-Resultado esperado:
-
-```text
-Programa sintaticamente valido.
-```
-
----
-
-## 9.4 ❌ Exemplo de Programa Inválido
-
-Considere um programa que possui um erro sintático, mas ainda apresenta `end.` para encerrar a digitação:
+## 9.2 ❌ Erro sintático
 
 ```pascal
 program Teste
@@ -1505,25 +1307,116 @@ begin
 end.
 ```
 
-Nesse exemplo, está faltando:
+Falta `;` depois do nome do programa. O Parser deverá emitir uma mensagem no formato:
 
 ```text
-;
+Erro de sintaxe no token [lexema]
 ```
 
-depois do identificador `Teste`.
+O `lexema` mostrado corresponde ao token encontrado no ponto do erro.
 
-A gramática exige:
+## 9.3 ❌ Erro léxico
+
+```pascal
+program Teste;
+var
+begin
+    write(10 $ 2);
+end.
+```
+
+O caractere `$` não é reconhecido. Saída esperada:
 
 ```text
-<programa> ::= program IDENTIFICADOR ; <secao_var> <bloco> .
+Erro léxico no caracter [$]
 ```
 
-Depois de digitar `end.`, pressione **Enter**.
+## 9.4 ❌ Tokens após `end.`
 
-A `main.c` encerra a leitura normalmente, mas o Parser encontra o erro porque esperava `PONTO_VIRGULA` depois do identificador do programa.
+```pascal
+program Teste;
+var
+begin
+end.
+write(10);
+```
 
-Portanto, `end.` apenas encerra a entrada. Ele não faz com que um código incorreto seja aceito.
+**Deve ser rejeitado.** A função `main()` agora lê até `EOF`, e o Parser exige que não restem tokens após o ponto final do programa.
+
+## 9.5 🧪 Casos relevantes para regressão
+
+| Caso | Comportamento esperado |
+|---|---|
+| `var` sem declarações | Aceito pela gramática |
+| Ausência de `var` | Erro sintático |
+| `repeat` com um único comando | Aceito |
+| `repeat` com bloco `begin ... end;` | Aceito |
+| `x := 10 - 5;` | Aceito (subtração binária) |
+| `x := -5;` | Rejeitado (menos unário não especificado) |
+| `write('_');` | Aceito |
+| `write('\n');` e `write('\t');` | Aceitos |
+| `// comentário` | Ignorado pelo Lexer |
+| Conteúdo após `end.` | Erro sintático |
+| Entrada maior que `TAM - 1` | Erro de limite de entrada |
+| Lexema maior que `TAM_LEXEMA - 1` | Erro de limite de lexema |
+
+**Atenção:** o projeto não realiza análise semântica. A existência de variáveis declaradas e a compatibilidade entre tipos não são verificadas nesta primeira parte.
+
+---
+
+# 🧪 Suíte de Testes
+
+A pasta `test/` contém **211 arquivos `.pas`** para validar o comportamento do analisador: **89 válidos**, **84 com erros sintáticos**, **30 com erros léxicos** e **8 casos de limites**. O arquivo `test/manifesto.csv` registra a classificação esperada de cada caso.
+
+Além dos testes automatizados, o arquivo `test/testes_manuais_micropascal.md` apresenta exemplos para digitar ou colar diretamente no terminal. Consulte também [`test/README.md`](test/README.md) para a documentação detalhada da suíte.
+
+## Executar todos os testes no Windows (PowerShell)
+
+**1. Compilar o analisador:**
+
+```powershell
+gcc -std=c11 -Wall -Wextra -Wpedantic src/main.c src/lexer.c src/parser.c -o micropascal.exe
+```
+
+**2. Compilar o executor de testes em C:**
+
+```powershell
+gcc -std=c11 -Wall -Wextra -Wpedantic test/executar_testes.c -o executar_testes.exe
+```
+
+**3. Executar a suíte de testes:**
+
+```powershell
+.\executar_testes.exe .\micropascal.exe
+```
+
+**4. Consultar o relatório gerado:**
+
+```powershell
+Import-Csv .\test\resultado_execucao.csv | Format-Table -AutoSize
+```
+
+## Executar todos os testes no Linux/macOS
+
+**1. Compilar o analisador:**
+
+```bash
+gcc -std=c11 -Wall -Wextra -Wpedantic src/main.c src/lexer.c src/parser.c -o micropascal
+```
+
+**2. Compilar o executor:**
+
+```bash
+gcc -std=c11 -Wall -Wextra -Wpedantic test/executar_testes.c -o executar_testes
+```
+
+**3. Executar os testes:**
+
+```bash
+./executar_testes ./micropascal
+```
+
+O executor compara a saída de cada teste com a categoria esperada (`ACEITA`, `SINTATICO`, `LEXICO` ou `ENTRADA`), informa a quantidade de casos conformes e gera `test/resultado_execucao.csv`. A categoria `OUTRO` indica que a saída não foi reconhecida por essas regras; por exemplo, pode sinalizar uma falha ao iniciar o executável. A execução da suíte não modifica os arquivos `.pas`.
 
 ---
 
@@ -1535,8 +1428,12 @@ Portanto, `end.` apenas encerra a entrada. Ele não faz com que um código incor
 | `src/lexer.c` | Transformar caracteres e lexemas em tokens |
 | `src/parser.c` | Verificar se os tokens obedecem à gramática |
 | `src/main.c` | Receber a entrada e coordenar Lexer e Parser |
+| `test/executar_testes.c` | Executar os casos `.pas` e registrar os resultados |
+| `test/manifesto.csv` | Relacionar os casos de teste aos resultados esperados |
+| `test/testes_manuais_micropascal.md` | Orientar a validação manual pelo terminal |
+| `test/README.md` | Documentar a suíte de testes |
 | `.gitignore` | Definir arquivos que não serão versionados |
-| `docs/assigninstrucoes_professorment/` | Armazenar os documentos e as instruções do professor |
+| `docs/instrucoes_professor/` | Armazenar os documentos e as instruções do professor |
 | `docs/documentacao_tecnica/` | Reunir a documentação técnica |
 | `docs/images/` | Armazenar imagens e diagramas da documentação |
 | `README.md` | Documentar o projeto |
@@ -1591,7 +1488,7 @@ Este README documenta os requisitos e a implementação correspondente à **Part
 
 Documento-base fornecido para a atividade:
 
-📄 **[MicroPascal — Projeto de Compiladores: Primeira Parte](doc/MicroPascal-parte1.pdf)**
+📄 **[MicroPascal — Projeto de Compiladores: Primeira Parte](docs/instrucoes_professor/MicroPascal-parte1.pdf)**
 
 O documento apresenta as especificações utilizadas como base para o desenvolvimento da **Parte 1 do projeto**, contemplando o **Analisador Léxico (Lexer)** e o **Analisador Sintático (Parser)**.
 
