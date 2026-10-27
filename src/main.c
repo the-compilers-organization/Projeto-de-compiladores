@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "define.h"
+#include "tokens.h"
+#include "globais.h"
+#include "lexer.h"
+#include "parser.h"
 
 /* Definicoes unicas das variaveis compartilhadas. */
 char entrada[TAM];

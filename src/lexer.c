@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "define.h"
+#include "tokens.h"
+#include "globais.h"
+#include "lexer.h"
 
 
 int palavra_reservada(char palavra[]){

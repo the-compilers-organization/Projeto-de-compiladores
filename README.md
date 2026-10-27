@@ -91,7 +91,10 @@ Projeto-de-compiladores/
 │   └── images/
 │
 ├── src/
-│   ├── define.h
+│   ├── tokens.h
+│   ├── globais.h
+│   ├── lexer.h
+│   ├── parser.h
 │   ├── lexer.c
 │   ├── main.c
 │   └── parser.c
@@ -125,19 +128,92 @@ A pasta `src/` concentra o código-fonte do analisador. A pasta `test/` reúne o
 
 # 📁 Organização dos Arquivos
 
-## `src/define.h`
+## `src/tokens.h`
 
-Arquivo de cabeçalho responsável por reunir as definições compartilhadas pelos diferentes módulos do projeto.
+Cabeçalho que centraliza as **constantes de tamanho** e os **códigos dos tokens** reconhecidos pelo Lexer e utilizados pelo Parser.
 
-Nele são declarados:
+- `TAM`: capacidade do vetor que armazena o código-fonte (10.000 posições).
+- `TAM_LEXEMA`: capacidade do vetor de lexema (100 posições).
+- `IDENTIFICADOR`, `INTEIRO_LITERAL`, `REAL_LITERAL` e `CHAR_LITERAL`: tokens de identificadores e literais.
+- Tokens de operadores, símbolos especiais e palavras reservadas.
+- `FIM`: token que indica o término da entrada.
 
-- constantes de tamanho;
-- códigos dos tokens;
-- variáveis globais compartilhadas;
-- protótipos das funções do Lexer;
-- protótipos das funções do Parser.
+Os códigos dos tokens permanecem os mesmos; apenas o cabeçalho foi renomeado de `define.h` para `tokens.h`.
 
-Dessa forma, `main.c`, `lexer.c` e `parser.c` podem utilizar as mesmas definições.
+---
+
+## `src/globais.h`
+
+Declara as **variáveis globais compartilhadas** entre `main.c`, `lexer.c` e `parser.c`, utilizando `extern`:
+
+```c
+#include "tokens.h"
+
+extern char entrada[TAM];
+extern char lexema[TAM_LEXEMA];
+extern int posicao;
+extern int simbolo_lido;
+```
+
+O modificador `extern` permite acessar variáveis definidas em outro arquivo, **sem criar novas cópias**. As definições efetivas permanecem em `src/main.c`, uma única vez.
+
+---
+
+## `src/lexer.h`
+
+Declara os **protótipos das funções do analisador léxico**, implementadas em `lexer.c`:
+
+```c
+void obtenha_simbolo(void);
+int palavra_reservada(char palavra[]);
+void erro_lexico(char caractere);
+```
+
+Essas assinaturas devem corresponder às definições das funções em `lexer.c`.
+
+---
+
+## `src/parser.h`
+
+Declara os **protótipos das funções do analisador sintático**, implementadas em `parser.c`.
+
+Inclui as funções auxiliares `consumir(int token)` e `erro_sintatico(void)`, as funções dos não terminais (`programa()`, `secao_var()`, `bloco()`, `comando()` etc.) e as funções de expressões (`expressao()`, `expr_logica()`, `expr_relacional()`, `expr_aditiva()`, `expr_multiplicativa()` e `expr_basica()`).
+
+Cada cabeçalho utiliza uma proteção contra inclusões repetidas (*include guard*).
+
+---
+
+## Inclusão dos cabeçalhos nos arquivos `.c`
+
+O antigo `#include "define.h"` deve ser substituído pelos cabeçalhos necessários a cada módulo:
+
+**`src/main.c`:**
+
+```c
+#include "tokens.h"
+#include "globais.h"
+#include "lexer.h"
+#include "parser.h"
+```
+
+**`src/lexer.c`:**
+
+```c
+#include "tokens.h"
+#include "globais.h"
+#include "lexer.h"
+```
+
+**`src/parser.c`:**
+
+```c
+#include "tokens.h"
+#include "globais.h"
+#include "lexer.h"
+#include "parser.h"
+```
+
+As inclusões das bibliotecas padrão de C (`stdio.h`, `stdlib.h` etc.) devem ser mantidas conforme o uso de cada arquivo. A separação dos cabeçalhos **não altera a gramática, os tokens ou a lógica do analisador**.
 
 ---
 
@@ -318,15 +394,18 @@ O funcionamento geral do projeto pode ser representado por:
                 mensagem de erro
 ```
 
-O arquivo `define.h` fornece as definições compartilhadas:
+Os cabeçalhos agora organizam as declarações por responsabilidade:
 
 ```text
-                     define.h
-                   /    |     \
-                  /     |      \
-                 ▼      ▼       ▼
-             main.c  lexer.c  parser.c
+  tokens.h       globais.h       lexer.h       parser.h
+ (constantes)   (variaveis)    (funcoes)      (funcoes)
+      |             |              |              |
+      +-------------+--------------+--------------+
+                    |
+             main.c / lexer.c / parser.c
 ```
+
+Cada arquivo `.c` inclui os cabeçalhos necessários. As variáveis globais são definidas uma única vez em `main.c`.
 
 De forma resumida:
 
@@ -1424,10 +1503,13 @@ O executor compara a saída de cada teste com a categoria esperada (`ACEITA`, `S
 
 | Arquivo | Responsabilidade |
 |---|---|
-| `src/define.h` | Definir tokens, constantes, variáveis compartilhadas e protótipos |
+| `src/tokens.h` | Definir constantes de tamanho e códigos dos tokens |
+| `src/globais.h` | Declarar as variáveis globais compartilhadas com `extern` |
+| `src/lexer.h` | Declarar os protótipos das funções do Lexer |
+| `src/parser.h` | Declarar os protótipos das funções do Parser |
 | `src/lexer.c` | Transformar caracteres e lexemas em tokens |
 | `src/parser.c` | Verificar se os tokens obedecem à gramática |
-| `src/main.c` | Receber a entrada e coordenar Lexer e Parser |
+| `src/main.c` | Definir as variáveis globais, receber a entrada e coordenar Lexer e Parser |
 | `test/executar_testes.c` | Executar os casos `.pas` e registrar os resultados |
 | `test/manifesto.csv` | Relacionar os casos de teste aos resultados esperados |
 | `test/testes_manuais_micropascal.md` | Orientar a validação manual pelo terminal |

@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "define.h"
+#include "tokens.h"
+#include "globais.h"
+#include "lexer.h"
+#include "parser.h"
 
 // --------------------------------- funções de apoio
 void erro_sintatico(void){
