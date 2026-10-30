@@ -43,6 +43,7 @@ Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Univ
 :small_blue_diamond: [Escopo](#-escopo)  
 :small_blue_diamond: [Referência](#-referência)  
 :small_blue_diamond: [Desenvolvedores](#-desenvolvedores)
+
 ---
 
 # ⁉️ Sobre o Projeto
