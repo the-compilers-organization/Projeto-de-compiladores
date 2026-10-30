@@ -1,0 +1,6 @@
+PROGRAMA [Teste]
+  BLOCO [begin]
+    WRITE [write]
+      LITERAL [1]
+    WRITE [write]
+      LITERAL [2]

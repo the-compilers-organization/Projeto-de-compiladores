@@ -1,0 +1,3 @@
+PROGRAMA [Teste]
+  BLOCO [begin]
+    BLOCO [begin]

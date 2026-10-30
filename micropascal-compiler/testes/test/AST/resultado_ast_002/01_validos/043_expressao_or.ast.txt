@@ -1,0 +1,6 @@
+PROGRAMA [Teste]
+  BLOCO [begin]
+    WRITE [write]
+      OPERADOR_BINARIO [or]
+        LITERAL [1]
+        LITERAL [2]

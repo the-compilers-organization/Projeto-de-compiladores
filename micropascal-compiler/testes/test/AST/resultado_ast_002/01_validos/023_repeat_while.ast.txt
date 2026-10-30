@@ -1,0 +1,8 @@
+PROGRAMA [Teste]
+  BLOCO [begin]
+    REPEAT [repeat]
+      WHILE [while]
+        LITERAL [1]
+        WRITE [write]
+          LITERAL [2]
+      LITERAL [3]

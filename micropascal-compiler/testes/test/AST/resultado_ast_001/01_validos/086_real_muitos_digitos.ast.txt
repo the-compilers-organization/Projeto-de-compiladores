@@ -1,0 +1,4 @@
+PROGRAMA [Teste]
+  BLOCO [begin]
+    WRITE [write]
+      LITERAL [1234567890.123456789]

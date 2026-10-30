@@ -1,0 +1,7 @@
+PROGRAMA [Teste]
+  DECLARACAO [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+    IDENTIFICADOR [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+    LITERAL [integer]
+  BLOCO [begin]
+    WRITE [write]
+      LITERAL [1]

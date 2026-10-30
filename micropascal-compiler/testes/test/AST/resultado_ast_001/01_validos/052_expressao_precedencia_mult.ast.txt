@@ -1,0 +1,8 @@
+PROGRAMA [Teste]
+  BLOCO [begin]
+    WRITE [write]
+      OPERADOR_BINARIO [+]
+        LITERAL [1]
+        OPERADOR_BINARIO [*]
+          LITERAL [2]
+          LITERAL [3]

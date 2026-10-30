@@ -1,8 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
-
 #include "lexer.h"
-#include "token.h"
+#include "ast.h"
 
 typedef struct {
     Lexer *lexer;
@@ -10,7 +9,8 @@ typedef struct {
 } Parser;
 
 void parser_inicializar(Parser *parser, Lexer *lexer);
-
+/* A primeira parte continua disponivel e descarta a AST construida. */
 void parser_analisar_programa(Parser *parser);
-
-#endif 
+/* Segunda parte: retorna a arvore, que deve ser liberada com ast_liberar. */
+NoAST *parser_construir_ast(Parser *parser);
+#endif

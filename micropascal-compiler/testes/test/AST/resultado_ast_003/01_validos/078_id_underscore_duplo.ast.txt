@@ -1,0 +1,8 @@
+PROGRAMA [Teste]
+  DECLARACAO [a__b]
+    IDENTIFICADOR [a__b]
+    LITERAL [integer]
+  BLOCO [begin]
+    ATRIBUICAO [a__b]
+      IDENTIFICADOR [a__b]
+      LITERAL [1]
