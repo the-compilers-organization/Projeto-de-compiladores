@@ -46,7 +46,9 @@ static void parser_avancar(Parser *parser) {
 }
 
 static void parser_erro(Parser *parser) {
-     if (parser->token_atual.tipo != TOKEN_ERRO) {
+    if (parser->token_atual.tipo == TOKEN_EOF) {
+        fprintf(stderr, "Erro de sintaxe no token [EOF]\n");
+    } else if (parser->token_atual.tipo != TOKEN_ERRO) {
         fprintf(stderr, "Erro de sintaxe no token [%s]\n", parser->token_atual.lexema);
     }
     exit(1);

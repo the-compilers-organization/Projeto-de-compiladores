@@ -51,7 +51,7 @@ static void pular_brancos(Lexer *lexer) {
             if (proximo == '/') {
                 pular_comentario(lexer);
             } else {
-                ungetc(proximo, lexer->arquivo);
+                if (proximo != EOF) ungetc(proximo, lexer->arquivo);
                 return;
             }
         } else {
@@ -110,18 +110,26 @@ static Token ler_numero(Lexer *lexer) {
         avancar(lexer);
     }
 
+    /* Um ponto faz parte do real somente quando seguido de digito.
+       Caso contrario, ele permanece para o proximo token. */
     if (lexer->caractere_atual == '.') {
-        if (i >= TAM_MAX_LEXEMA) erro_lexico('.');
-        token.lexema[i++] = '.';
-        avancar(lexer);
+        int proximo = fgetc(lexer->arquivo);
+        if (proximo != EOF) ungetc(proximo, lexer->arquivo);
 
-        if (!isdigit(lexer->caractere_atual)) erro_lexico(lexer->caractere_atual);
-        while (isdigit(lexer->caractere_atual)) {
-            if (i >= TAM_MAX_LEXEMA) erro_lexico(lexer->caractere_atual);
-            token.lexema[i++] = (char)lexer->caractere_atual;
+        if (isdigit((unsigned char)proximo)) {
+            if (i >= TAM_MAX_LEXEMA) erro_lexico('.');
+            token.lexema[i++] = '.';
             avancar(lexer);
+
+            while (isdigit(lexer->caractere_atual)) {
+                if (i >= TAM_MAX_LEXEMA) erro_lexico(lexer->caractere_atual);
+                token.lexema[i++] = (char)lexer->caractere_atual;
+                avancar(lexer);
+            }
+            token.tipo = TOKEN_REAL_LITERAL;
+        } else {
+            token.tipo = TOKEN_INTEIRO_LITERAL;
         }
-        token.tipo = TOKEN_REAL_LITERAL;
     } else {
         token.tipo = TOKEN_INTEIRO_LITERAL;
     }
@@ -251,7 +259,7 @@ Token lexer_proximo_token(Lexer *lexer) {
 
     if (lexer->caractere_atual == '.') {
         int proximo = fgetc(lexer->arquivo);
-        ungetc(proximo, lexer->arquivo);
+        if (proximo != EOF) ungetc(proximo, lexer->arquivo);
         if (isdigit(proximo)) {
             return ler_numero(lexer);
         }
