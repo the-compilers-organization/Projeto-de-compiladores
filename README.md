@@ -1307,5 +1307,6 @@ O documento apresenta as especificações da **Parte 1**, contemplando o Lexer e
 
 # 👨‍💻 Desenvolvedores
 
+
 | [<img src="https://github.com/Amanda-Aziz.png" width="115"><br><sub>Amanda Aziz</sub>](https://github.com/Amanda-Aziz) | [<img src="https://github.com/ayrtongomes070-pixel.png" width="115"><br><sub>Ayrton Gomes</sub>](https://github.com/ayrtongomes070-pixel) | [<img src="https://github.com/eduardovcmalta.png" width="115"><br><sub>Eduardo Malta</sub>](https://github.com/eduardovcmalta) | [<img src="https://github.com/francisLauriano.png" width="115"><br><sub>Francis Lauriano</sub>](https://github.com/francisLauriano) | [<img src="https://github.com/GuiDev005.png" width="115"><br><sub>Guilherme Eduardo Araujo</sub>](https://github.com/GuiDev005) | [<img src="https://github.com/Sofiafs.png" width="115"><br><sub>Sofia Farias</sub>](https://github.com/Sofiafs) |
 | :---: | :---: | :---: |:---: | :---: | :---: |
