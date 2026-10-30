@@ -1,0 +1,13 @@
+# Binários e objetos
+*.o
+*.out
+micropascal
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de IDE/editor
+.vscode/
+.idea/
+*.swp

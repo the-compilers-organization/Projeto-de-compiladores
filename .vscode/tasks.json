@@ -1,0 +1,31 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: gcc.exe arquivo de build ativo",
+            "command": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-I${workspaceFolder}/micropascal-compiler/include",
+                "${workspaceFolder}/micropascal-compiler/src/main.c",
+                "${workspaceFolder}/micropascal-compiler/src/lexer.c",
+                "${workspaceFolder}/micropascal-compiler/src/parser.c",
+                "-o",
+                "${workspaceFolder}/micropascal.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Compila todos os fontes do compilador Micro-Pascal com GCC"
+        }
+    ]
+}
