@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <strong>Parte 1 — Análise Léxica e Sintática | Parte 2 — Geração de AST</strong>
+  <strong>Parte 1 — Análise Léxica e Sintática | Parte 2 — Geração de AST, Análise Semântica e Geração de Código Intermediário</strong>
 </p>
 
-> **Status do Projeto:** 🚧 Em desenvolvimento — Lexer, Parser e AST implementados; análise semântica e código intermediário pendentes.
+> **Status do Projeto:** 🚧 Em desenvolvimento — Lexer, Parser e AST implementados; análise semântica e Geração de Código Intermediário.
 
 Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Universidade Católica de Pernambuco (UNICAP), sob orientação do professor **Robson Lins**.
 
@@ -59,7 +59,7 @@ O **Analisador Léxico** recebe o código-fonte e transforma as sequências de c
 
 O **Analisador Sintático** recebe esses tokens e verifica se eles aparecem em uma sequência permitida pela **gramática da linguagem micro-Pascal**.
 
-Na **Parte 2**, o projeto já implementa a construção e impressão da **Árvore Sintática Abstrata (AST)**. A análise semântica e a geração de código intermediário permanecem como etapas futuras.
+Na **Parte 2**, o projeto já implementa a construção da **Árvore Sintática Abstrata (AST)**. A **Análise Semântica** e a **Geração de Código Intermediário** permanecem como etapas futuras da **Parte 2**.
 
 ---
 
