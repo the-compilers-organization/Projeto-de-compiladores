@@ -1,137 +1,75 @@
-# Testes do MicroPascal
+# Suíte de testes do MicroPascal
 
-Esta pasta contém a suíte de **203 testes automatizados** do MicroPascal, implementado em C. Os sete arquivos `.pas` originais permanecem separados, diretamente na pasta `testes/`.
+Esta pasta contém **231 testes automatizados** para o compilador MicroPascal em C11. Os sete arquivos de exemplo `.pas` diretamente em `testes/` ficam fora da suíte. Execute todos os comandos a partir da pasta `micropascal-compiler/`.
 
-> **IMPORTANTE:** o `main.c` **não possui menu interativo** e **não lê o código pela entrada padrão**. É obrigatório informar o caminho de um arquivo `.pas` como argumento: `micropascal <arquivo_fonte>`. Todos os comandos abaixo partem de `micropascal-compiler/`, a pasta que contém `src/`, `include/` e `testes/`.
-
----
-
-## 1. Organização dos arquivos
+## 1. Organização
 
 ```text
-micropascal-compiler/
-├── include/
-│   ├── lexer.h
-│   ├── parser.h
-│   └── token.h
-├── src/
-│   ├── main.c
-│   ├── lexer.c
-│   └── parser.c
-├── testes/
-│   ├── e1.pas
-│   ├── e2.pas
-│   ├── e3.pas
-│   ├── e5.pas
-│   ├── exemplo1.pas
-│   ├── exemplo2.pas
-│   ├── teste_lexer.pas
-│   └── test/
-│       ├── 01_validos/              # 89 testes
-│       ├── 02_erros_sintaticos/    # 84 testes
-│       ├── 03_erros_lexicos/       # 30 testes
-│       ├── executar_testes.c
-│       ├── manifesto.csv
-│       ├── README_test.md
-│       ├── resultado_execucao_001.csv  # relatórios numerados
-│       ├── rodar_testes_completos.bat
-│       └── rodar_testes_completos.sh
-└── ...
+testes/
+├── e1.pas, e2.pas, e3.pas, e5.pas
+├── exemplo1.pas, exemplo2.pas, teste_lexer.pas
+└── test/
+    ├── 01_validos_lexicos_sintaticos/  (70 arquivos)
+    ├── 02_erros_sintaticos/            (76 arquivos)
+    ├── 03_erros_lexicos/               (30 arquivos)
+    ├── 04_semanticos/                  (55 arquivos, 001–055)
+    ├── executar_testes.c
+    ├── manifesto.csv                   (único manifesto, etapa 2)
+    ├── rodar_testes_completos.bat
+    ├── rodar_testes_completos.sh
+    └── README_test.md
 ```
 
-> **IMPORTANTE:** Os relatórios `resultado_execucao_001.csv`, `resultado_execucao_002.csv` etc. são criados sequencialmente pelo executor, sem sobrescrever os anteriores. Os arquivos `.pas` são entradas de teste e não devem ser modificados durante a execução.
+**Importante:** a categoria da pasta é histórica/organizacional. Alguns arquivos de `01_validos_lexicos_sintaticos/` agora são rejeitados por semântica; alguns de `02_erros_sintaticos/` podem disparar erro semântico antes de alcançar o erro sintático. Consulte a coluna `esperado` do manifesto para saber o resultado correto de cada caso.
 
----
+## 2. Manifesto e categorias
 
-## 2. Pré-requisitos
+O arquivo `manifesto.csv` contém **231 registros**, um por teste, com as colunas:
 
-- GCC com suporte a C11 (`gcc --version`).
-- Terminal do VS Code, PowerShell no Windows ou shell no Linux/macOS.
-- Executar os comandos na pasta **`micropascal-compiler/`**, não na raiz externa do repositório `Projeto-de-compiladores/`.
+| Coluna | Conteúdo |
+|---|---|
+| `arquivo` | Caminho relativo a `testes/test/` |
+| `categoria` | Pasta/categoria organizacional |
+| `esperado` | Resultado esperado na etapa 2 |
+| `assunto` | Tema do teste |
+| `observacao` | Informação complementar |
 
-No PowerShell, caso esteja na raiz externa do repositório:
+Resultados reconhecidos pelo executor:
 
-```powershell
-cd .\micropascal-compiler
-```
+| Resultado | Significado |
+|---|---|
+| `ACEITA` | Processo terminou com código `0` |
+| `LEXICO` | Mensagem de erro léxico |
+| `SINTATICO` | Mensagem de erro sintático |
+| `SEMANTICO` | Mensagem `Erro semantico na linha` |
+| `ENTRADA` | Mensagem de erro de limite de entrada reconhecida pelo executor |
+| `OUTRO` | Falha que não se encaixou nas categorias reconhecidas |
 
----
+O executor compara `observado` e `esperado` e registra `OK` ou `DIVERGENCIA` no relatório. Não existe `manifesto_etapa2.csv`: o único manifesto já contém as expectativas da segunda etapa.
 
-## 3. Windows — PowerShell
+## 3. Executar no Windows (PowerShell)
 
-### Opção A — Executar a suíte completa pelo script
+Requer GCC no `PATH`. Entre em `micropascal-compiler/` e execute:
 
 ```powershell
 .\testes\test\rodar_testes_completos.bat
 ```
 
-O script deve compilar o analisador e o executor e executar os 203 casos. 
-
->**Atenção:** para funcionar com esta organização, os caminhos internos do `.bat` e do `executar_testes.c` precisam apontar para `testes/test/`. Este README não altera esses arquivos.
-
-...
-
-### Opção B — Compilar manualmente
-
-**1. Compilar o MicroPascal:**
+Ou compile e execute manualmente:
 
 ```powershell
 gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src\*.c -o micropascal.exe
-```
-
-**2. Compilar o executor dos testes:**
-
-```powershell
 gcc -std=c11 -Wall -Wextra -Wpedantic testes\test\executar_testes.c -o executar_testes.exe
-```
-
-**3. Executar a suíte:**
-
-```powershell
 .\executar_testes.exe .\micropascal.exe
 ```
 
-Esse comando pressupõe que `executar_testes.c` esteja adaptado aos caminhos `testes/test/` e que execute o compilador passando o arquivo `.pas` como argumento, não por redirecionamento de entrada.
-
-**4. Abrir o relatório:**
-
-```powershell
-Get-ChildItem .\testes\test\resultado_execucao_*.csv | Sort-Object Name | Select-Object -Last 1
-```
-
-### Executar um único arquivo `.pas`
-
-```powershell
-.\micropascal.exe .\testes\exemplo1.pas
-```
-
-Ou um dos testes da suíte:
-
-```powershell
-.\micropascal.exe .\testes\test\01_validos\001_vazio.pas
-```
-
-Se o código estiver correto, a versão atual do `main.c` termina normalmente **sem imprimir mensagem de sucesso**. Para consultar o código de saída no PowerShell, execute logo após o teste:
-
-```powershell
-$LASTEXITCODE
-```
-
-O valor `0` indica término com sucesso; um valor diferente de `0` indica falha. Erros léxicos ou sintáticos são reportados pelo analisador quando detectados.
-
----
-
-## 4. Linux/macOS — terminal
-
-### Executar pelo script
+## 4. Executar no Linux/macOS
 
 ```bash
 bash testes/test/rodar_testes_completos.sh
 ```
 
-O script e o executor devem estar adaptados aos caminhos `testes/test/`.
-
-### Compilar e executar manualmente
+Alternativamente:
 
 ```bash
 gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src/*.c -o micropascal
@@ -139,94 +77,47 @@ gcc -std=c11 -Wall -Wextra -Wpedantic testes/test/executar_testes.c -o executar_
 ./executar_testes ./micropascal
 ```
 
-Para um único arquivo:
+## 5. Testar um arquivo isolado
 
-```bash
-./micropascal testes/test/01_validos/001_vazio.pas
-```
-
-Consultar o relatório:
-
-```bash
-ls testes/test/resultado_execucao_*.csv
-```
-
----
-
-## 5. Testes manuais: funcionamento atual
-
-**Ainda não é possível digitar ou colar diretamente o programa MicroPascal no terminal**, pois o `main.c` exige um caminho de arquivo em `argv[1]`.
-
-Para fazer um teste manual:
-
-1. Crie um arquivo, por exemplo `testes/teste_manual.pas`.
-2. Escreva ou cole nele um programa MicroPascal completo.
-3. Salve o arquivo.
-4. Execute no PowerShell:
+O `main.c` exige o **caminho do arquivo `.pas` como argumento**. Não há menu, leitura por `stdin` ou necessidade de `Ctrl+Z`.
 
 ```powershell
-.\micropascal.exe .\testes\teste_manual.pas
+.\micropascal.exe .\testes\exemplo1.pas
+$LASTEXITCODE
 ```
 
-Exemplo de conteúdo do arquivo:
+Para testar um caso semântico, escolha um arquivo real em `testes/test/04_semanticos/` e execute, por exemplo:
 
-```pascal
-program Teste;
-var
-    x : integer;
-begin
-    x := 10;
-    write(x);
-end.
+```powershell
+.\micropascal.exe .\testes\test\04_semanticos\001_valido_aritmetica.pas
 ```
 
-**Não use** `Get-Content ... | .\micropascal.exe`, `Ctrl+Z`, `Ctrl+D` ou `./micropascal < arquivo.pas` para este `main.c`: ele abre o arquivo informado por argumento e não consome o código pela entrada padrão. Também não há opções de menu `1`, `2` ou `0` nesta versão.
+Se o nome do teste diferir, confira os arquivos existentes na pasta. Código de saída `0` indica aceitação; código diferente de `0` indica falha. O compilador **analisa**, mas não executa os comandos `write` do programa Pascal.
 
-O compilador **analisa** o comando `write(x)`, mas não executa o programa Pascal nem imprime o valor de `x`.
+## 6. Relatórios e interpretação
 
----
+Cada execução cria um novo arquivo `testes/test/resultado_execucao_NNN.csv` sem sobrescrever os anteriores (até o limite do executor). Para ver o mais recente no PowerShell:
 
-## 6. Categorias e interpretação dos resultados
+```powershell
+Get-ChildItem .\testes\test\resultado_execucao_*.csv | Sort-Object Name | Select-Object -Last 1
+```
 
-| Categoria | Significado |
-|---|---|
-| `ACEITA` | Programa aceito pelo analisador; processo terminou com sucesso. |
-| `SINTATICO` | Erro sintático identificado. |
-| `LEXICO` | Erro léxico identificado. |
-| `OUTRO` | Resultado que o executor não conseguiu classificar como uma das categorias anteriores. |
+A validação da versão documentada registrou **231/231 testes conformes, 0 divergências** no ambiente Linux. Esse resultado confirma o comportamento esperado para os casos cadastrados, mas não significa que todas as combinações semânticas possíveis foram testadas.
 
-O `manifesto.csv` contém o resultado esperado de cada um dos 203 testes. Nos relatórios `resultado_execucao_NNN.csv`, `OK` indica que a categoria observada corresponde à esperada; `DIVERGENCIA` indica que não corresponde. Os nomes exatos das colunas dependem da versão de `executar_testes.c` utilizada.
+### Atenção à primeira etapa
 
-### Categoria de limites removida
+A suíte original verificava léxico e sintaxe. Com a segunda etapa, a análise semântica pode rejeitar um programa sintaticamente válido ou detectar um erro antes de outro erro sintático posterior. O operador menos unário (`-5`) também passou a ser aceito. Por isso, o manifesto foi atualizado; as expectativas antigas podem ser recuperadas pelo histórico Git, quando disponível.
 
-A categoria `04_limites` foi retirada da suíte atual por decisão do projeto. O manifesto agora contém **203 testes**: 89 válidos, 84 erros sintáticos e 30 erros léxicos.
-
----
-
-## 7. Segunda etapa (planejada)
-
-A análise semântica será implementada com tabela de símbolos (hash), conforme a orientação atualizada do professor. O compilador atual verifica somente léxico e sintaxe. Não há opção de geração de árvores.
-
----
-
-## 8. Problemas comuns
+## 7. Problemas comuns
 
 | Situação | Verificação |
 |---|---|
-| `src/main.c: No such file or directory` | Entre em `micropascal-compiler/` antes de compilar. |
-| `lexer.h` ou `parser.h` não encontrado | Inclua `-Iinclude` no comando de compilação. |
-| `Uso: ... <arquivo_fonte>` | Informe o caminho de um `.pas` ao executar o compilador. |
-| `Erro: nao foi possivel abrir o arquivo` | Confira se o caminho e o nome do arquivo estão corretos. |
-| `manifesto.csv` não encontrado | Verifique se o executor procura em `testes/test/manifesto.csv`. |
-| Muitos resultados `OUTRO` | Confira se o executor chama `micropascal <arquivo.pas>` em vez de usar redirecionamento de entrada. |
-| Nenhuma mensagem após um teste válido | É o comportamento normal do `main.c` atual; confira o código de saída. |
-| Relatório não é criado | Verifique o caminho de saída e se o CSV está aberto em outro programa. |
+| `src/main.c: No such file or directory` | Execute na pasta `micropascal-compiler/` |
+| Cabeçalho não encontrado | Use `-Iinclude` na compilação |
+| `Uso: ... <arquivo_fonte>` | Informe o caminho de um `.pas` |
+| Não foi possível abrir o arquivo | Confira o caminho do `.pas` |
+| Manifesto não encontrado | Confira `testes/test/manifesto.csv` e o diretório atual |
+| Resultado `OUTRO` | Confira a mensagem e o código de saída; talvez o executor não reconheça a falha |
+| Nenhuma saída em programa válido | É normal; confira `$LASTEXITCODE` |
 
----
-
-## 9. Observações
-
-- Os 203 testes automatizados e os sete arquivos originais ficam separados.
-- A suíte verifica a análise léxica e sintática; a análise semântica ainda não está implementada.
-- A documentação considera o compilador executado por argumento de arquivo.
-- Esta documentação corresponde à versão sem construção de AST.
+Para informações sobre arquitetura, regras de tipos e gramática, consulte o [README principal](../../../README.md).

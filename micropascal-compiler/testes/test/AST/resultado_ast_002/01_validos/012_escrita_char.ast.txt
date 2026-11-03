@@ -1,4 +1,0 @@
-PROGRAMA [Teste]
-  BLOCO [begin]
-    WRITE [write]
-      LITERAL ['a']

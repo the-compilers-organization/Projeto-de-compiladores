@@ -1,0 +1,6 @@
+program Teste;
+var
+x : integer;
+begin
+x := 2 + 3 * 4;
+end.

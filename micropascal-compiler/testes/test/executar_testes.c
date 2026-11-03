@@ -1,5 +1,5 @@
 /* Executor dos testes MicroPascal - C11, Windows e Linux.
-   Uso: ./executar_testes ./micropascal
+   Uso: ./executar_testes ./micropascal [--etapa1]
    Execute a partir da raiz do projeto, onde esta a pasta testes/test/. */
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +17,8 @@ static void retirar_fim(char *s) {
 static void classificar(const char *saida, int codigo, char *resultado) {
     if (codigo == 0)
         strcpy(resultado, "ACEITA");
+    else if (codigo != 0 && strstr(saida, "Erro semantico na linha"))
+        strcpy(resultado, "SEMANTICO");
     else if (codigo != 0 && strstr(saida, "Erro de sintaxe no token ["))
         strcpy(resultado, "SINTATICO");
     else if (codigo != 0 && (strstr(saida, "Erro léxico") || strstr(saida, "Erro lexico")))
@@ -52,7 +54,7 @@ int main(int argc, char **argv) {
     executavel = argv[1];
     manifesto = fopen("testes/test/manifesto.csv", "rb");
     if (!manifesto) {
-        fprintf(stderr, "Nao foi possivel abrir testes/test/manifesto.csv. Execute na raiz do projeto.\n");
+        fprintf(stderr, "Nao foi possivel abrir o manifesto de testes. Execute na raiz do compilador.\n");
         return 2;
     }
     /* Cria sempre um novo relatorio, sem sobrescrever arquivos anteriores.

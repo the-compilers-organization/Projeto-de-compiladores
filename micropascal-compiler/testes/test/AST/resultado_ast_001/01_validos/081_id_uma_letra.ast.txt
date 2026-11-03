@@ -1,8 +1,0 @@
-PROGRAMA [Teste]
-  DECLARACAO [Z]
-    IDENTIFICADOR [Z]
-    LITERAL [integer]
-  BLOCO [begin]
-    ATRIBUICAO [Z]
-      IDENTIFICADOR [Z]
-      LITERAL [1]

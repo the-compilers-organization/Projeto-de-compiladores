@@ -1,5 +1,0 @@
-PROGRAMA [Teste]
-  DECLARACAO [x]
-    IDENTIFICADOR [x]
-    LITERAL [char]
-  BLOCO [begin]
