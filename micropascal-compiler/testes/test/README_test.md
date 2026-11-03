@@ -1,6 +1,6 @@
 # Testes do MicroPascal
 
-Esta pasta contém a suíte de **203 testes automatizados** do MicroPascal, implementado em C, além dos scripts de geração de AST da segunda parte. Os sete arquivos `.pas` originais permanecem separados, diretamente na pasta `testes/`.
+Esta pasta contém a suíte de **203 testes automatizados** do MicroPascal, implementado em C. Os sete arquivos `.pas` originais permanecem separados, diretamente na pasta `testes/`.
 
 > **IMPORTANTE:** o `main.c` **não possui menu interativo** e **não lê o código pela entrada padrão**. É obrigatório informar o caminho de um arquivo `.pas` como argumento: `micropascal <arquivo_fonte>`. Todos os comandos abaixo partem de `micropascal-compiler/`, a pasta que contém `src/`, `include/` e `testes/`.
 
@@ -12,7 +12,6 @@ Esta pasta contém a suíte de **203 testes automatizados** do MicroPascal, impl
 micropascal-compiler/
 ├── include/
 │   ├── lexer.h
-│   ├── ast.h
 │   ├── parser.h
 │   └── token.h
 ├── src/
@@ -34,9 +33,6 @@ micropascal-compiler/
 │       ├── executar_testes.c
 │       ├── manifesto.csv
 │       ├── README_test.md
-│       ├── gerar_todas_ast.bat
-│       ├── gerar_todas_ast.sh
-│       ├── AST/                     # resultados AST numerados
 │       ├── resultado_execucao_001.csv  # relatórios numerados
 │       ├── rodar_testes_completos.bat
 │       └── rodar_testes_completos.sh
@@ -207,29 +203,9 @@ A categoria `04_limites` foi retirada da suíte atual por decisão do projeto. O
 
 ---
 
-## 7. Geração das árvores sintáticas (AST)
+## 7. Segunda etapa (planejada)
 
-A versão da segunda parte do MicroPascal, com `ast.c`, `ast.h` e suporte a `--ast`, permite gerar as árvores dos testes em lote. Os scripts processam as três categorias restantes e criam uma pasta numerada a cada execução.
-
-**Windows:**
-
-```powershell
-.\testes\test\gerar_todas_ast.bat
-```
-
-**Linux/macOS:**
-
-```bash
-bash testes/test/gerar_todas_ast.sh
-```
-
-**Árvore individual:**
-
-```powershell
-.\micropascal.exe .\testes\test\01_validos\001_vazio.pas --ast
-```
-
-A saída fica em `testes/test/AST/resultado_ast_001/`, `resultado_ast_002/` etc. Cada pasta contém as subpastas `01_validos`, `02_erros_sintaticos`, `03_erros_lexicos` e o arquivo `resumo.csv`. Nos testes válidos, são esperadas 89 ASTs; nos 114 casos inválidos, são esperados erros de análise. Esses totais devem ser confirmados na execução.
+A análise semântica será implementada com tabela de símbolos (hash), conforme a orientação atualizada do professor. O compilador atual verifica somente léxico e sintaxe. Não há opção de geração de árvores.
 
 ---
 
@@ -251,6 +227,6 @@ A saída fica em `testes/test/AST/resultado_ast_001/`, `resultado_ast_002/` etc.
 ## 9. Observações
 
 - Os 203 testes automatizados e os sete arquivos originais ficam separados.
-- A suíte verifica a análise léxica e sintática; a geração da AST é uma verificação complementar, não uma validação semântica nem a execução do programa Pascal.
-- A documentação considera o compilador executado por argumento de arquivo. A versão com AST também aceita `--ast`.
-- Este README não modifica o código-fonte nem os scripts; apenas documenta sua utilização.
+- A suíte verifica a análise léxica e sintática; a análise semântica ainda não está implementada.
+- A documentação considera o compilador executado por argumento de arquivo.
+- Esta documentação corresponde à versão sem construção de AST.

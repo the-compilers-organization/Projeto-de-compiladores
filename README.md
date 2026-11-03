@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <strong>Parte 1 — Análise Léxica e Sintática | Parte 2 — Geração de AST, Análise Semântica e Geração de Código Intermediário</strong>
+  <strong>Parte 1 — Análise Léxica e Sintática | Parte 2 — Análise Semântica com Tabela de Símbolos e Geração de Código Intermediário</strong>
 </p>
 
-> **Status do Projeto:** 🚧 Em desenvolvimento — Lexer, Parser e AST implementados; análise semântica e Geração de Código Intermediário.
+> **Status do Projeto:** 🚧 Em desenvolvimento — Lexer e Parser implementados; análise semântica com tabela de símbolos (hash) e geração de código intermediário ainda não implementadas.
 
 Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Universidade Católica de Pernambuco (UNICAP), sob orientação do professor **Robson Lins**.
 
@@ -37,8 +37,6 @@ Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Univ
 :small_blue_diamond: [Compilação com Makefile](#84-compilação-com-makefile)  
 :small_blue_diamond: [Testando o Analisador](#9--testando-o-analisador)  
 :small_blue_diamond: [Suíte de Testes](#96-suíte-automatizada)  
-:small_blue_diamond: [Geração em lote de ASTs](#97-geração-em-lote-de-asts)  
-:small_blue_diamond: [Geração da Árvore Sintática Abstrata (AST)](#-parte-2--geração-da-árvore-sintática-abstrata-ast)  
 :small_blue_diamond: [Resumo das Responsabilidades](#10--resumo-das-responsabilidades)  
 :small_blue_diamond: [Escopo](#-escopo)  
 :small_blue_diamond: [Referência](#-referência)  
@@ -48,7 +46,7 @@ Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Univ
 
 # ⁉️ Sobre o Projeto
 
-Este repositório contém a implementação da **Parte 1 e da geração de AST da Parte 2 do Projeto de Compiladores**, cujo objetivo é aplicar conceitos fundamentais de construção de compiladores por meio do desenvolvimento das duas primeiras etapas de um compilador para uma versão simplificada da linguagem Pascal, denominada **micro-Pascal**.
+Este repositório contém a implementação da **Parte 1 do Projeto de Compiladores**, cujo objetivo é aplicar conceitos fundamentais de construção de compiladores por meio do desenvolvimento das duas primeiras etapas de um compilador para uma versão simplificada da linguagem Pascal, denominada **micro-Pascal**.
 
 Nesta primeira etapa, o projeto contempla:
 
@@ -59,7 +57,7 @@ O **Analisador Léxico** recebe o código-fonte e transforma as sequências de c
 
 O **Analisador Sintático** recebe esses tokens e verifica se eles aparecem em uma sequência permitida pela **gramática da linguagem micro-Pascal**.
 
-Na **Parte 2**, o projeto já implementa a construção da **Árvore Sintática Abstrata (AST)**. A **Análise Semântica** e a **Geração de Código Intermediário** permanecem como etapas futuras da **Parte 2**.
+Na **Parte 2**, a análise semântica será desenvolvida com uma **tabela de símbolos implementada por tabela hash**, conforme a orientação atualizada do professor, sem construção de árvore sintática abstrata. Essa etapa e a geração de código intermediário ainda não estão implementadas.
 
 ---
 
@@ -88,13 +86,11 @@ Projeto-de-compiladores/
     ├── include/
     │   ├── token.h
     │   ├── lexer.h
-    │   ├── parser.h
-    │   └── ast.h
+    │   └── parser.h
     ├── src/
     │   ├── main.c
     │   ├── lexer.c
-    │   ├── parser.c
-    │   └── ast.c
+    │   └── parser.c
     ├── testes/
     │   ├── e1.pas, e2.pas, e3.pas, e5.pas
     │   ├── exemplo1.pas, exemplo2.pas, teste_lexer.pas
@@ -102,19 +98,11 @@ Projeto-de-compiladores/
     │       ├── 01_validos/              # 89 testes
     │       ├── 02_erros_sintaticos/    # 84 testes
     │       ├── 03_erros_lexicos/       # 30 testes
-    │       ├── AST/
-    │       │   └── resultado_ast_001/
-    │       │       ├── 01_validos/
-    │       │       ├── 02_erros_sintaticos/
-    │       │       ├── 03_erros_lexicos/
-    │       │       └── resumo.csv
     │       ├── executar_testes.c
     │       ├── manifesto.csv
     │       ├── README_test.md
     │       ├── rodar_testes_completos.bat
-    │       ├── rodar_testes_completos.sh
-    │       ├── gerar_todas_ast.bat
-    │       └── gerar_todas_ast.sh
+    │       └── rodar_testes_completos.sh
     ├── rodar_testes.bat
     ├── rodar_testes.sh
     ├── Makefile
@@ -122,7 +110,7 @@ Projeto-de-compiladores/
     └── README.md
 ```
 
-As pastas `resultado_ast_002/`, `resultado_ast_003/` etc. são criadas conforme novas execuções, preservando o histórico. Os arquivos de teste originais em `testes/` permanecem separados da suíte automatizada.
+Os arquivos de teste originais em `testes/` permanecem separados da suíte automatizada.
 
 ---
 
@@ -159,21 +147,17 @@ soma  → identificador
 
 ## `include/parser.h` e `src/parser.c`
 
-O Parser descendente recursivo recebe os tokens do Lexer, verifica a gramática e constrói os nós da AST. Suas rotinas correspondem às construções do MicroPascal: programa, declarações, blocos, comandos e expressões. A interface em `parser.h` define os tipos e as funções disponibilizados aos outros módulos.
-
-## `include/ast.h` e `src/ast.c`
-
-Reúnem as definições e as operações da Árvore Sintática Abstrata: representação dos nós, construção, impressão e liberação dos recursos utilizados. A árvore preserva a estrutura do programa reconhecido, incluindo o agrupamento das expressões conforme a precedência dos operadores.
+O Parser descendente recursivo recebe os tokens do Lexer, verifica a gramática sem construir uma árvore sintática. Suas rotinas correspondem às construções do MicroPascal: programa, declarações, blocos, comandos e expressões. A interface em `parser.h` define os tipos e as funções disponibilizados aos outros módulos.
 
 ## `Makefile`
 
-Automatiza a compilação do projeto com **GCC** e o padrão **C11**. Usa `$(wildcard src/*.c)` para localizar todos os arquivos `.c` da pasta `src/`, incluindo `ast.c`, sem precisar adicioná-los manualmente. Os arquivos objeto `.o` são gerados a partir dos fontes, e a ligação produz o executável `micropascal` (normalmente `micropascal.exe` no Windows). A opção `-Iinclude` permite encontrar os cabeçalhos.
+Automatiza a compilação do projeto com **GCC** e o padrão **C11**. Usa `$(wildcard src/*.c)` para localizar todos os arquivos `.c` da pasta `src/`, sem precisar listar cada fonte manualmente. Os arquivos objeto `.o` são gerados a partir dos fontes, e a ligação produz o executável `micropascal` (normalmente `micropascal.exe` no Windows). A opção `-Iinclude` permite encontrar os cabeçalhos.
 
 Os alvos disponíveis são `all` (padrão) e `clean`; os comandos e as particularidades de Windows estão explicados na seção [8.4 — Compilação com Makefile](#84-compilação-com-makefile).
 
 ## `src/main.c`
 
-É o ponto de entrada. Recebe o caminho do arquivo `.pas` pela linha de comando, abre o arquivo, inicializa a análise e informa o resultado por meio do código de saída. Com a opção `--ast`, solicita a impressão da árvore construída. **Não existe menu interativo nem leitura do código pela entrada padrão (`stdin`) na versão atual.**
+É o ponto de entrada. Recebe o caminho do arquivo `.pas` pela linha de comando, abre o arquivo, inicializa a análise e informa o resultado por meio do código de saída. **Não existe menu interativo nem leitura do código pela entrada padrão (`stdin`) na versão atual.**
 
 ## `testes/test/executar_testes.c`
 
@@ -182,7 +166,6 @@ Executa os casos registrados em `manifesto.csv`, compara o resultado observado c
 ## Scripts de automação
 
 - `rodar_testes_completos.bat` e `.sh`: compilam e executam a suíte de 203 testes.
-- `gerar_todas_ast.bat` e `.sh`: geram as ASTs e os relatórios de erro em pastas numeradas.
 - `rodar_testes.bat` e `.sh`: scripts destinados aos testes originais, separados da suíte completa.
 
 ## `.gitignore`, `.vscode/` e `README.md`
@@ -197,24 +180,21 @@ O `.gitignore` controla quais arquivos gerados não serão versionados; `.vscode
 Arquivo .pas
     │
     ▼
-  main.c ── abre o arquivo-fonte
+  main.c — abre o arquivo-fonte
     │
     ▼
-  Lexer ─── caracteres → tokens
+  Lexer — reconhece os tokens
     │
     ▼
-  Parser ── verifica a gramática
+  Parser — verifica a gramática
     │
-    ├── erro léxico ou sintático → diagnóstico e falha
+    ├── erro léxico ou sintático → diagnóstico e código de falha
     │
     ▼
-Construção da AST
-    │
-    ├── execução normal → término com código 0
-    └── opção --ast → impressão da árvore
+  Programa sintaticamente aceito → código de saída 0
 ```
 
-O compilador **não executa** o programa Pascal. Por exemplo, `write(x)` é reconhecido como comando, mas não imprime o valor da variável. A AST será a base para futuras etapas de análise semântica e geração de código intermediário.
+A análise semântica com tabela de símbolos (hash) será integrada em etapa posterior.
 
 ---
 
@@ -981,11 +961,11 @@ Esse exemplo utiliza:
 
 # 8. 🛠️ Compilação e Execução
 
-**Todos os comandos abaixo devem ser executados dentro de `micropascal-compiler/`.** É necessário ter o GCC instalado e disponível no terminal. O `Makefile` fornecido já utiliza `src/*.c` e inclui automaticamente o módulo da AST.
+**Todos os comandos abaixo devem ser executados dentro de `micropascal-compiler/`.** É necessário ter o GCC instalado e disponível no terminal. O `Makefile` fornecido já utiliza `src/*.c` para compilar os módulos atuais.
 
 ## 8.1 Windows — PowerShell
 
-**Compilar todos os módulos, inclusive a AST:**
+**Compilar todos os módulos:**
 
 ```powershell
 gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src\*.c -o micropascal.exe
@@ -998,18 +978,11 @@ gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src\*.c -o micropascal.exe
 $LASTEXITCODE
 ```
 
-**Imprimir a AST:**
-
-```powershell
-.\micropascal.exe .\testes\exemplo1.pas --ast
-```
-
 ## 8.2 Linux/macOS — Terminal
 
 ```bash
 gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src/*.c -o micropascal
 ./micropascal testes/exemplo1.pas
-./micropascal testes/exemplo1.pas --ast
 echo $?
 ```
 
@@ -1021,7 +994,7 @@ Crie e salve um arquivo `testes/teste_manual.pas` contendo um programa MicroPasc
 .\micropascal.exe .\testes\teste_manual.pas
 ```
 
-O argumento do programa deve ser o caminho de um arquivo existente. **Não use `Ctrl+Z`, `Ctrl+D`, redirecionamento `<` nem `Get-Content` para enviar o código ao analisador atual.** O código de saída `0` indica sucesso; um valor diferente de `0` indica erro. Sem `--ast`, a análise bem-sucedida normalmente não imprime mensagem.
+O argumento do programa deve ser o caminho de um arquivo existente. **Não use `Ctrl+Z`, `Ctrl+D`, redirecionamento `<` nem `Get-Content` para enviar o código ao analisador atual.** O código de saída `0` indica sucesso; um valor diferente de `0` indica erro. A análise bem-sucedida normalmente não imprime mensagem.
 
 ## 8.4 Compilação com Makefile
 
@@ -1045,22 +1018,20 @@ TARGET = micropascal
 
 - `CC`: seleciona o compilador GCC.
 - `CFLAGS`: ativa avisos, usa C11 e inclui os cabeçalhos da pasta `include/`.
-- `SRC`: localiza automaticamente todos os arquivos `src/*.c`, inclusive `src/ast.c`.
+- `SRC`: localiza automaticamente todos os arquivos `src/*.c`, presentes no diretório `src/`.
 - `OBJ`: define os arquivos objeto `.o` correspondentes.
 - `TARGET`: define o nome-base do executável.
 
-**Executar a análise e imprimir a AST no Linux/macOS:**
+**Executar a análise no Linux/macOS:**
 
 ```bash
 ./micropascal testes/exemplo1.pas
-./micropascal testes/exemplo1.pas --ast
 ```
 
 **Executar no Windows (PowerShell):**
 
 ```powershell
 .\micropascal.exe .\testes\exemplo1.pas
-.\micropascal.exe .\testes\exemplo1.pas --ast
 ```
 
 **Limpar os arquivos compilados:**
@@ -1087,7 +1058,7 @@ begin
 end.
 ```
 
-Salve em um arquivo `.pas` e execute o compilador passando o caminho. O programa deve terminar com código `0`. Para visualizar a árvore, acrescente `--ast`.
+Salve em um arquivo `.pas` e execute o compilador passando o caminho. O programa deve terminar com código `0`. Não há impressão de árvore nesta versão.
 
 ## 9.2 ❌ Erro sintático
 
@@ -1173,82 +1144,10 @@ testes/test/resultado_execucao_002.csv
 
 O histórico não é sobrescrito. Consulte [`testes/test/README_test.md`](testes/test/README_test.md) para instruções específicas da suíte.
 
-## 9.7 Geração em lote de ASTs
 
-**Windows:**
+# 🧠 Parte 2 — Análise Semântica (planejada)
 
-```powershell
-.\testes\test\gerar_todas_ast.bat
-```
-
-**Linux/macOS:**
-
-```bash
-bash testes/test/gerar_todas_ast.sh
-```
-
-Cada execução cria uma pasta `resultado_ast_NNN`, contendo as três categorias e um arquivo `resumo.csv`:
-
-```text
-testes/test/AST/
-└── resultado_ast_001/
-    ├── 01_validos/             # saídas .ast.txt
-    ├── 02_erros_sintaticos/   # diagnósticos .erro.txt
-    ├── 03_erros_lexicos/      # diagnósticos .erro.txt
-    └── resumo.csv
-```
-
-**Resultado esperado da suíte atual:** 203 arquivos analisados, 89 ASTs impressas, nenhum válido sem AST e 114 erros de análise (84 sintáticos e 30 léxicos). Esses números representam a distribuição esperada após a remoção dos testes de limites; devem ser confirmados pela execução.
-
-As pastas numeradas anteriores podem conter resultados da antiga suíte de 211 testes e permanecem como histórico.
-
----
-
-# 🌳 Parte 2 — Geração da Árvore Sintática Abstrata (AST)
-
-A segunda parte do trabalho prevê ampliar o compilador para além do reconhecimento léxico e sintático. A etapa já implementada é a **construção da AST durante a análise sintática**, com opção de impressão para inspeção e testes.
-
-## 1. O que é uma AST?
-
-Uma Árvore Sintática Abstrata representa a estrutura relevante de um programa sem precisar reproduzir todos os símbolos da gramática. Diferentemente da simples lista de tokens, ela mostra como declarações, comandos e expressões se relacionam.
-
-Por exemplo, para:
-
-```pascal
-x := 10 + 2 * 3;
-```
-
-A estrutura conceitual é:
-
-```text
-Atribuição
-├── Destino: x
-└── Soma (+)
-    ├── Inteiro: 10
-    └── Multiplicação (*)
-        ├── Inteiro: 2
-        └── Inteiro: 3
-```
-
-A multiplicação aparece abaixo da soma porque possui maior precedência. **A representação é ilustrativa:** os nomes exatos dos nós e o formato da impressão dependem de `ast.c`.
-
-## 2. Como a árvore é construída?
-
-O Lexer reconhece os tokens, o Parser verifica as regras da linguagem e, ao reconhecer uma construção válida, cria os nós correspondentes. As estruturas declaradas em `include/ast.h` e as operações implementadas em `src/ast.c` dão suporte a essa representação.
-
-## 3. Impressão da árvore
-
-A opção `--ast` permite solicitar a representação textual da AST de um arquivo válido:
-
-```powershell
-.\micropascal.exe .\testes\exemplo1.pas --ast
-```
-
-Os scripts de geração em lote salvam as árvores de programas aceitos em `.ast.txt` e os diagnósticos de programas rejeitados em `.erro.txt`, acompanhados por `resumo.csv`.
-
-## 4. O que a AST ainda não verifica?
-
-A existência de uma AST **não comprova** que o programa é semanticamente correto. Verificar se uma variável foi declarada, se os tipos são compatíveis e se operações são válidas pertence à **análise semântica**. A geração de código intermediário também permanece como etapa futura. O compilador ainda não executa os programas MicroPascal.
+Conforme a orientação atualizada do professor, a segunda etapa utilizará uma **tabela de símbolos implementada com tabela hash**, sem construção ou armazenamento de AST. A tabela permitirá registrar declarações e consultar identificadores durante as verificações semânticas. A implementação ainda não foi adicionada ao projeto; por enquanto, o compilador realiza apenas as análises léxica e sintática.
 
 ---
 
@@ -1259,16 +1158,14 @@ A existência de uma AST **não comprova** que o programa é semanticamente corr
 | `include/token.h` | Definir tokens e sua representação |
 | `include/lexer.h` | Declarar a interface do Lexer |
 | `include/parser.h` | Declarar a interface do Parser |
-| `include/ast.h` | Definir as estruturas e operações públicas da AST |
 | `src/lexer.c` | Reconhecer lexemas e produzir tokens |
-| `src/parser.c` | Validar a gramática e construir a AST |
-| `src/ast.c` | Implementar as operações sobre a árvore |
+| `src/parser.c` | Validar a gramática |
 | `src/main.c` | Receber o arquivo-fonte e coordenar a análise |
 | `Makefile` | Automatizar a compilação dos módulos C e a limpeza dos artefatos |
 | `testes/test/executar_testes.c` | Executar os testes e registrar os resultados |
 | `testes/test/manifesto.csv` | Registrar as classificações esperadas |
 | `testes/test/README_test.md` | Documentar a suíte automatizada |
-| Scripts `.bat` e `.sh` | Automatizar compilação, testes e impressão de ASTs |
+| Scripts `.bat` e `.sh` | Automatizar compilação e testes |
 | `README.md` | Documentar o projeto |
 
 A distinção principal entre os componentes é:
@@ -1276,10 +1173,10 @@ A distinção principal entre os componentes é:
 ```text
 LEXER:  "Qual token foi reconhecido?"
 PARSER: "Essa sequência de tokens segue a gramática?"
-AST:    "Como os elementos reconhecidos se organizam?"
+SEMÂNTICA (futura): "Os identificadores e tipos são válidos?"
 ```
 
-A análise semântica e a geração de código intermediário são etapas posteriores, ainda não apresentadas como implementadas.
+A análise semântica com tabela hash e a geração de código intermediário ainda não estão implementadas.
 
 ---
 
@@ -1287,7 +1184,7 @@ A análise semântica e a geração de código intermediário são etapas poster
 
 > **Parte 1 — implementada:** análise léxica e análise sintática descendente recursiva.
 
-> **Parte 2 — implementação parcial(Próximas etapas):** construção da Árvore Sintática Abstrata (AST), análise semântica e geração de código intermediário.
+> **Parte 2 — planejada:** análise semântica com tabela de símbolos (hash) e geração de código intermediário, sem AST.
 
 O projeto é um analisador/compilador acadêmico em desenvolvimento e **não interpreta nem executa** os comandos Pascal.
 
@@ -1301,7 +1198,7 @@ Documento-base fornecido para a atividade:
 
 📄 **[MicroPascal — Projeto de Compiladores: Segunda Parte](docs/instrucoes_professor/MicroPascal-parte2.pdf)**
 
-O documento apresenta as especificações da **Parte 1**, contemplando o Lexer e o Parser. A construção da AST, análise semântica e geração de código intermediário corresponde à etapa inicial já desenvolvida da **Parte 2**.
+O documento apresenta as especificações da **Parte 1**, contemplando o Lexer e o Parser. A Parte 2 será adaptada à orientação atualizada do professor: tabela de símbolos (hash), sem AST. A documentação original da Parte 2 permanece arquivada como referência histórica e pode conter requisitos anteriores.
 
 ---
 
