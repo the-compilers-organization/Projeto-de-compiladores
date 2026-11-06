@@ -4,14 +4,17 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/micropascal-compiler/include"
+                "${workspaceFolder}/micropascal-compiler/include",
+                "C:/msys64/ucrt64/include",
+                "C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include",
+                "C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include-fixed"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
+            "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
             "cStandard": "c11",
             "intelliSenseMode": "windows-gcc-x64"
         }

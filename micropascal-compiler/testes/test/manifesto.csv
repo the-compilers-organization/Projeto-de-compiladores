@@ -227,6 +227,6 @@ arquivo,categoria,esperado,assunto,observacao
 04_semanticos/030_igualdade_mista.pas,04_semanticos,SEMANTICO,regras semanticas etapa 2,teste adicional da analise semantica
 04_semanticos/031_logica_booleanos.pas,04_semanticos,ACEITA,regras semanticas etapa 2,teste adicional da analise semantica
 04_semanticos/032_logica_inteiros.pas,04_semanticos,SEMANTICO,regras semanticas etapa 2,teste adicional da analise semantica
-04_semanticos/033_char_sub_inteiro.pas,04_semanticos,ACEITA,regras semanticas etapa 2,teste adicional da analise semantica
+04_semanticos/033_char_sub_inteiro.pas,04_semanticos,SEMANTICO,regras semanticas etapa 2,teste adicional da analise semantica
 04_semanticos/034_real_menos_unario.pas,04_semanticos,ACEITA,regras semanticas etapa 2,teste adicional da analise semantica
 04_semanticos/035_var_booleano_proibido.pas,04_semanticos,SINTATICO,regras semanticas etapa 2,teste adicional da analise semantica

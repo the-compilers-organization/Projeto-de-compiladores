@@ -1,26 +1,44 @@
+
 #include <stdlib.h>
 #include <string.h>
 #include "../include/tabela_simbolos.h"
 
 
-
 static unsigned int hash_nome(const char *nome) {
-    // TODO: calcular e retornar o indice hash do identificador
+    /* TODO: calcular e retornar o indice hash do identificador. */
 
-    //  Calcula o indice da tabela hash a partir do nome de um identificador.
-    //  PARAMETRO:
-    //  nome - string terminada em '\0' com o nome da variavel.
-    //  RETORNO:
-    //  Indice inteiro entre 0 e TAM_TABELA - 1.
-    //  ROTEIRO:
-    //  1. Percorrer os caracteres do nome.
-    //  2. Combinar seus codigos em um acumulador unsigned int.
-    //  Uma possibilidade e multiplicar o acumulador por 31 e somar
-    //  o valor do caractere (convertido para unsigned char).
-    //  3. Aplicar o operador % TAM_TABELA ao resultado.
-    //  Nomes diferentes podem gerar o mesmo indice (colisao).
-    //  Essa situacao sera tratada pela lista encadeada em cada posicao.
-
+    /*
+     * Calcula o indice da tabela hash a partir do nome
+     * de um identificador.
+     *
+     * PARAMETRO:
+     *   nome - string terminada em '\0' com o nome da variavel.
+     *
+     * RETORNO:
+     *   Indice inteiro entre 0 e TAM_TABELA - 1.
+     *
+     * ROTEIRO:
+     *   1. Criar um acumulador do tipo unsigned int,
+     *      inicializado com zero.
+     *   2. Percorrer os caracteres do nome ate '\0'.
+     *   3. Para cada caractere, multiplicar o acumulador
+     *      por 31 e somar o codigo do caractere,
+     *      convertido para unsigned char.
+     *   4. Aplicar % TAM_TABELA ao acumulador.
+     *   5. Retornar o indice calculado.
+     *
+     * IMPORTANTE:
+     *   Nomes diferentes podem gerar o mesmo indice.
+     *   Isso e chamado de colisao e nao representa
+     *   um erro semantico.
+     *
+     *   As colisoes serao tratadas por listas encadeadas
+     *   em cada posicao do vetor da tabela.
+     *
+     *   A funcao deve receber um nome valido.
+     *   As funcoes que a chamam devem verificar
+     *   previamente se nome nao e NULL.
+     */
 }
 
 
@@ -28,94 +46,207 @@ void tabela_inicializar(TabelaSimbolos *t) {
     /* TODO: inicializar todas as posicoes da tabela com NULL. */
 
     /*
-    * Inicializa a tabela de simbolos antes de analisar um programa.
-    *
-    * PARAMETRO:
-    *   t - ponteiro para a tabela hash.
-    *
-    * ROTEIRO:
-    *   Percorrer todas as TAM_TABELA posicoes do vetor da tabela
-    *   e atribuir NULL a cada uma, indicando que ainda nao ha simbolos.
-    */
+     * Inicializa a tabela de simbolos antes de analisar
+     * um programa MicroPascal.
+     *
+     * PARAMETRO:
+     *   t - ponteiro para a tabela hash.
+     *
+     * ROTEIRO:
+     *   1. Verificar se t e diferente de NULL.
+     *   2. Percorrer as TAM_TABELA posicoes do vetor.
+     *   3. Atribuir NULL a cada posicao.
+     *
+     * IMPORTANTE:
+     *   NULL indica que a lista daquela posicao
+     *   ainda nao possui simbolos.
+     *
+     *   A tabela deve ser inicializada antes
+     *   de qualquer insercao ou busca.
+     *
+     *   Esta funcao nao deve alocar memoria
+     *   para os simbolos.
+     */
 }
 
 
 const Simbolo *tabela_buscar(const TabelaSimbolos *t, const char *nome) {
-    /* TODO: percorrer a lista da posicao hash e localizar o nome. */
+    /* TODO: localizar o identificador na lista da posicao hash. */
 
     /*
-    * Procura um identificador ja registrado na tabela.
-    *
-    * PARAMETROS:
-    *   t    - tabela de simbolos a consultar.
-    *   nome - identificador procurado.
-    *
-    * RETORNO:
-    *   Ponteiro const para o Simbolo encontrado, ou NULL se nao existir.
-    *   O const impede alterar o registro por meio do ponteiro retornado.
-    *
-    * ROTEIRO:
-    *   1. Calcular a posicao usando hash_nome(nome).
-    *   2. Percorrer a lista encadeada dessa posicao.
-    *   3. Comparar os nomes usando strcmp.
-    *   4. Retornar o simbolo correspondente ou NULL.
-    *
-    * Essa busca sera usada para detectar declaracoes duplicadas e
-    * identificar variaveis nao declaradas durante a analise semantica.
-    */
+     * Procura um identificador registrado na tabela.
+     *
+     * PARAMETROS:
+     *   t    - tabela de simbolos a consultar.
+     *   nome - identificador procurado.
+     *
+     * RETORNO:
+     *   Ponteiro const para o Simbolo encontrado,
+     *   ou NULL se o identificador nao existir.
+     *
+     *   O const impede modificar o simbolo
+     *   por meio do ponteiro retornado.
+     *
+     * ROTEIRO:
+     *   1. Verificar se t e nome sao diferentes de NULL.
+     *   2. Calcular o indice usando hash_nome(nome).
+     *   3. Obter o primeiro simbolo da lista
+     *      armazenada naquela posicao do vetor.
+     *   4. Percorrer a lista utilizando o campo prox.
+     *   5. Comparar cada nome usando strcmp.
+     *   6. Se encontrar um nome igual, retornar
+     *      o ponteiro para o simbolo correspondente.
+     *   7. Se chegar ao final sem encontrar,
+     *      retornar NULL.
+     *
+     * TRATAMENTO DE COLISOES:
+     *   Dois identificadores diferentes podem
+     *   produzir o mesmo indice hash.
+     *
+     *   Por isso, nao basta verificar apenas
+     *   a posicao do vetor.
+     *
+     *   E necessario percorrer a lista encadeada
+     *   e comparar os nomes completos.
+     *
+     * RESPONSABILIDADE SEMANTICA:
+     *   Esta funcao apenas procura o identificador.
+     *   Ela nao deve emitir mensagens de erro.
+     *
+     *   O Parser utiliza a busca para:
+     *
+     *   - Detectar declaracoes duplicadas.
+     *   - Identificar variaveis nao declaradas.
+     *   - Recuperar o tipo de uma variavel
+     *     para verificar expressoes e atribuicoes.
+     *
+     *   Se uma variavel for utilizada e a busca
+     *   retornar NULL, o Parser deve informar
+     *   um erro semantico de variavel nao declarada.
+     */
 }
 
 
-int tabela_inserir(TabelaSimbolos *t, const char *nome, TipoDado tipo, int linha) {
+int tabela_inserir(TabelaSimbolos *t, const char *nome,
+                   TipoDado tipo, int linha) {
     /* TODO: validar, impedir duplicidade, alocar e encadear o simbolo. */
 
     /*
-    * Insere uma nova declaracao de variavel na tabela de simbolos.
-    *
-    * PARAMETROS:
-    *   t     - tabela onde o simbolo sera registrado.
-    *   nome  - nome do identificador.
-    *   tipo  - tipo declarado (integer, real ou char).
-    *   linha - linha da declaracao, util para mensagens de erro.
-    *
-    * RETORNO PROPOSTO:
-    *   1 se a insercao for realizada; 0 se nao for possivel inserir.
-    *
-    * ROTEIRO:
-    *   1. Validar o tamanho de nome para nao ultrapassar o campo da struct.
-    *   2. Consultar tabela_buscar para impedir nomes duplicados.
-    *   3. Alocar um novo Simbolo com malloc e conferir o resultado.
-    *   4. Copiar o nome, guardar tipo e linha.
-    *   5. Calcular o indice com hash_nome.
-    *   6. Encadear o novo simbolo na lista dessa posicao.
-    *   7. Retornar sucesso.
-    *
-    * IMPORTANTE:
-    *   Nao permitir a declaracao de variaveis do tipo booleano.
-    *   O retorno 0 pode indicar duplicidade ou falha de memoria; se o
-    *   parser precisar diferenciar esses erros, consultar antes de inserir
-    *   ou definir codigos de retorno mais especificos no cabecalho.
-    */
+     * Insere uma nova declaracao de variavel
+     * na tabela de simbolos.
+     *
+     * PARAMETROS:
+     *   t     - tabela onde o simbolo sera registrado.
+     *   nome  - nome do identificador.
+     *   tipo  - tipo declarado (integer, real ou char).
+     *   linha - linha da declaracao.
+     *
+     * RETORNO:
+     *    1 - simbolo inserido com sucesso.
+     *    0 - identificador ja declarado.
+     *   -1 - dados invalidos ou falha de memoria.
+     *
+     * VALIDACOES:
+     *   1. Verificar se t e nome sao diferentes de NULL.
+     *   2. Verificar se nome nao esta vazio.
+     *   3. Verificar se o tamanho do nome e menor
+     *      que TAM_NOME, incluindo espaco para '\0'.
+     *   4. Verificar se o tipo declarado e permitido:
+     *      TIPO_INTEIRO, TIPO_REAL ou TIPO_CHAR.
+     *   5. Nao permitir TIPO_BOOLEANO ou TIPO_INVALIDO
+     *      como tipo de variavel declarada.
+     *
+     * ROTEIRO:
+     *   1. Realizar as validacoes dos parametros.
+     *   2. Consultar tabela_buscar para verificar
+     *      se o identificador ja foi declarado.
+     *   3. Se ja existir, retornar 0.
+     *   4. Alocar um novo Simbolo utilizando malloc.
+     *   5. Verificar se a alocacao foi realizada.
+     *      Se falhar, retornar -1.
+     *   6. Copiar o nome para o novo simbolo.
+     *   7. Armazenar o tipo e a linha da declaracao.
+     *   8. Calcular o indice usando hash_nome(nome).
+     *   9. Inserir o novo simbolo na lista encadeada
+     *      correspondente ao indice calculado.
+     *  10. Retornar 1 indicando sucesso.
+     *
+     * TRATAMENTO DE COLISOES:
+     *   Cada posicao do vetor aponta para o
+     *   primeiro elemento de uma lista encadeada.
+     *
+     *   Se dois nomes diferentes produzirem o
+     *   mesmo indice, ambos devem ser armazenados
+     *   na mesma lista.
+     *
+     *   Para inserir no inicio da lista:
+     *
+     *   1. Fazer o campo prox do novo simbolo
+     *      apontar para o primeiro elemento atual.
+     *   2. Atualizar a posicao do vetor para apontar
+     *      para o novo simbolo.
+     *
+     *   Se a lista estiver vazia, seu primeiro
+     *   elemento sera NULL.
+     *
+     *   A colisao nao representa duplicidade.
+     *   Somente identificadores com nomes iguais
+     *   devem ser considerados duplicados.
+     *
+     * REGRAS SEMANTICAS:
+     *   - Nao permitir duas declaracoes com o mesmo nome.
+     *   - Armazenar a associacao entre nome e tipo.
+     *   - Nao permitir declaracoes do tipo booleano.
+     *
+     * RESPONSABILIDADE DO PARSER:
+     *   O Parser deve verificar o retorno da insercao.
+     *
+     *   Retorno 1: declaracao registrada.
+     *   Retorno 0: informar declaracao duplicada.
+     *   Retorno -1: tratar dados invalidos
+     *               ou falha de memoria.
+     *
+     *   Esta funcao nao deve imprimir diretamente
+     *   mensagens de erro semantico.
+     */
 }
 
 
 void tabela_liberar(TabelaSimbolos *t) {
-    /* TODO: percorrer as listas, liberar os nos e limpar o vetor. */
+    /* TODO: liberar todos os simbolos das listas encadeadas. */
 
     /*
-    * Libera a memoria de todos os simbolos armazenados.
-    *
-    * PARAMETRO:
-    *   t - tabela a ser esvaziada.
-    *
-    * ROTEIRO:
-    *   1. Percorrer cada posicao do vetor hash.
-    *   2. Para cada lista, guardar o proximo antes de chamar free.
-    *   3. Liberar cada Simbolo e avancar ate NULL.
-    *   4. Atribuir NULL a posicao depois de liberar a lista.
-    *
-    * Nao chamar free(t) quando a propria tabela nao foi alocada com malloc.
-    */
+     * Libera a memoria dos simbolos armazenados
+     * na tabela hash.
+     *
+     * PARAMETRO:
+     *   t - tabela a ser esvaziada.
+     *
+     * ROTEIRO:
+     *   1. Verificar se t e diferente de NULL.
+     *   2. Percorrer todas as posicoes do vetor.
+     *   3. Para cada posicao, obter o primeiro
+     *      simbolo da lista encadeada.
+     *   4. Enquanto existir um simbolo:
+     *      a) Guardar o endereco do proximo.
+     *      b) Liberar o simbolo atual com free.
+     *      c) Avancar para o proximo simbolo.
+     *   5. Atribuir NULL a posicao do vetor
+     *      depois de liberar toda a lista.
+     *
+     * IMPORTANTE:
+     *   Guardar o proximo elemento antes de
+     *   liberar o simbolo atual.
+     *
+     *   Depois de chamar free, nao acessar
+     *   os campos do simbolo liberado.
+     *
+     *   Nao chamar free(t) quando a propria
+     *   tabela nao foi alocada com malloc.
+     *
+     *   Esta funcao deve ser chamada quando
+     *   a analise do programa terminar.
+     */
 }
 
 
@@ -123,19 +254,34 @@ const char *tipo_nome(TipoDado tipo) {
     /* TODO: retornar a descricao textual do tipo informado. */
 
     /*
-    * Converte um TipoDado para um texto legivel em mensagens de erro.
-    *
-    * PARAMETRO:
-    *   tipo - valor do enum TipoDado.
-    *
-    * RETORNO:
-    *   String constante correspondente ao tipo.
-    *
-    * ROTEIRO:
-    *   Usar switch para mapear TIPO_INTEIRO, TIPO_REAL, TIPO_CHAR,
-    *   TIPO_BOOLEANO e TIPO_INVALIDO para seus nomes textuais.
-    *   Prever um retorno padrao para valores desconhecidos.
-    *
-    * A string retornada nao deve ser liberada nem modificada.
-    */
+     * Converte um TipoDado para um texto legivel,
+     * utilizado principalmente em mensagens de erro.
+     *
+     * PARAMETRO:
+     *   tipo - valor do enum TipoDado.
+     *
+     * RETORNO:
+     *   String constante correspondente ao tipo.
+     *
+     * ROTEIRO:
+     *   1. Utilizar switch para identificar o tipo.
+     *   2. Retornar o texto correspondente:
+     *
+     *      TIPO_INTEIRO  -> "integer"
+     *      TIPO_REAL     -> "real"
+     *      TIPO_CHAR     -> "char"
+     *      TIPO_BOOLEANO -> "boolean"
+     *      TIPO_INVALIDO -> "invalido"
+     *
+     *   3. Prever um retorno padrao para
+     *      valores desconhecidos.
+     *
+     * IMPORTANTE:
+     *   A string retornada e constante.
+     *   Nao deve ser modificada nem liberada.
+     *
+     *   Esta funcao nao realiza verificacoes
+     *   semanticas. Apenas converte o tipo
+     *   para uma representacao textual.
+     */
 }

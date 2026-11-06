@@ -20,7 +20,7 @@ testes/
     └── README_test.md
 ```
 
-**Importante:**  Consulte a coluna `esperado` do `manifesto.csv` para saber o resultado correto de cada caso.
+**Importante:** a categoria da pasta é histórica/organizacional. Alguns arquivos de `01_validos_lexicos_sintaticos/` agora são rejeitados por semântica; alguns de `02_erros_sintaticos/` podem disparar erro semântico antes de alcançar o erro sintático. Consulte a coluna `esperado` do manifesto para saber o resultado correto de cada caso.
 
 ## 2. Manifesto e categorias
 
