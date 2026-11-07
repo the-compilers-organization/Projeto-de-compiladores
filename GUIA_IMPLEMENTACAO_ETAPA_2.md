@@ -4,7 +4,9 @@
 
 Implementar **a tabela de símbolos por tabela hash** e **a análise semântica** no projeto `micropascal-compiler/` presente no arquivo `Projeto-de-compiladores(4).zip`. A implementação deve seguir os comentários `TODO` existentes nos arquivos-fonte. **Não construir AST.**
 
-Este documento descreve **o que deve ser implementado neste projeto**, sem comparar versões e sem atribuir atividades de criação de testes (os testes já existem).
+Este documento descreve **o que deve ser implementado neste projeto**.
+
+---
 
 ## 2. Arquivos disponíveis e ponto de partida
 
@@ -20,19 +22,22 @@ Este documento descreve **o que deve ser implementado neste projeto**, sem compa
 
 **Regra de trabalho:** antes de alterar uma função, ler integralmente seu comentário no respectivo `.c`. Manter as assinaturas públicas dos cabeçalhos existentes, salvo alteração acordada para a integração do Parser. Não duplicar as definições de `TipoDado` nem de `TabelaSimbolos`.
 
+---
+
 ## 3. Distribuição de atividades entre os seis integrantes
 
-A distribuição procura equilibrar **complexidade e esforço**, não apenas o número de funções. As responsabilidades são exclusivas para evitar edições simultâneas conflitantes; a integração entre partes deve ser coordenada.
+| Integrante | Função ou trecho e arquivo | Atividade |
+|---|---|---|
+| **1** | `hash_nome()` — `src/tabela_simbolos.c`; `tabela_inicializar()` — `src/tabela_simbolos.c`; `tabela_buscar()` — `src/tabela_simbolos.c`; `tabela_inserir()` — `src/tabela_simbolos.c` | Implementar índice hash, inicialização, busca por lista encadeada, inserção, colisões e duplicidade. |
+| **2** | `tabela_liberar()` — `src/tabela_simbolos.c`; `tipo_nome()` — `src/tabela_simbolos.c`; `declaracao()` — `src/parser.c` | Liberar memória, converter tipos para texto e registrar declarações de variáveis na tabela. |
+| **3** | `numerico()` — `src/semantico.c`; `semantico_binaria()` — `src/semantico.c`; integração com os operadores binários — `src/parser.c`, nas funções `termo()`, `soma()`, `relacional()` e `expressao()` (sob responsabilidade do integrante 5) | Implementar regras dos operadores binários e orientar o integrante 5 sobre o uso de `semantico_binaria()`, sem editar as funções atribuídas a ele. |
+| **4** | `semantico_unaria()` — `src/semantico.c`; `semantico_atribuicao()` — `src/semantico.c`; `semantico_condicao()` — `src/semantico.c`; `fator()` — `src/parser.c` | Implementar regras unárias, atribuição, condições e identificação dos tipos em fatores. |
+| **5** | `termo()` — `src/parser.c`; `soma()` — `src/parser.c`; `relacional()` — `src/parser.c`; `expressao()` — `src/parser.c`; declaração antecipada de `expressao()` — `src/parser.c` | Propagar `TipoDado` nas expressões, chamar `semantico_binaria()` e preservar precedência e associatividade. |
+| **6** | `comando()` — `src/parser.c`; `parser_inicializar()` — `src/parser.c`; `parser_analisar_programa()` — `src/parser.c`; tratamento de erros — `src/parser.c`; `parser_finalizar()` — **a implementar em** `src/parser.c`; estrutura e protótipos — `include/parser.h`; chamada de finalização — `src/main.c`, após `parser_analisar_programa()` | Integrar os comandos à semântica, inicializar e liberar a tabela de símbolos, tratar erros e ajustar a interface do Parser. |
 
-| Integrante | Local exato | Funções / trechos sob responsabilidade | Atividade |
-|---|---|---|---|
-| **1** | `src/tabela_simbolos.c` | `hash_nome()`, `tabela_inicializar()`, `tabela_buscar()`, `tabela_inserir()` | Implementar índice hash, inicialização, busca por lista encadeada, inserção, colisões e duplicidade. |
-| **2** | `src/tabela_simbolos.c`; `src/parser.c` | `tabela_liberar()`, `tipo_nome()`, `declaracao()` | Liberar memória, converter tipos para texto e registrar declarações de variáveis na tabela. |
-| **3** | `src/semantico.c`; `src/parser.c` | `numerico()`, `semantico_binaria()`; apoio na ligação de operadores binários | Implementar regras de tipos de `+`, `-`, `*`, `/`, `div`, comparações, igualdade, `and` e `or`; alinhar chamadas com quem implementa expressões. |
-| **4** | `src/semantico.c`; `src/parser.c` | `semantico_unaria()`, `semantico_atribuicao()`, `semantico_condicao()`, `fator()` | Implementar regras unárias, compatibilidade de atribuição/condição e identificação de tipos básicos e variáveis em fatores. |
-| **5** | `src/parser.c` | `termo()`, `soma()`, `relacional()`, `expressao()` e suas declarações antecipadas | Propagar `TipoDado` pelas expressões, aplicar operações binárias e preservar precedência/associatividade. |
-| **6** | `src/parser.c`, `include/parser.h`, `src/main.c` | `comando()`, `parser_inicializar()`, `parser_analisar_programa()`, tratamento de erros e rotina de finalização | Integrar atribuições e condições aos comandos; armazenar/inicializar/liberar a tabela e atualizar a interface do Parser e a chamada em `main`. |
+> **Como localizar:** procure o nome de cada função no arquivo indicado. `parser_finalizar()` deverá ser criada em `src/parser.c`.
 
+---
 
 ## 4. Regras e contratos que devem ser respeitados
 
