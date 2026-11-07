@@ -1,127 +1,109 @@
-# Guia de implementação — MicroPascal
-
-**Segunda etapa:** tabela de símbolos por hash e análise semântica  
-**Equipe:** 6 integrantes
+# Guia de implementação — Etapa 2 do compilador MicroPascal
 
 ## 1. Objetivo
 
-Implementar as funções sinalizadas com `TODO` e integrar a tabela de símbolos à análise semântica do Parser descendente recursivo.
+Implementar **a tabela de símbolos por tabela hash** e **a análise semântica** no projeto `micropascal-compiler/` presente no arquivo `Projeto-de-compiladores(4).zip`. A implementação deve seguir os comentários `TODO` existentes nos arquivos-fonte. **Não construir AST.**
 
-- **Não construir AST.**
-- Preservar a análise léxica e a gramática existente.
-- Os caminhos indicados são relativos à raiz `micropascal-compiler/`: implementações em `src/` e interfaces em `include/`.
+Este documento descreve **o que deve ser implementado neste projeto**, sem comparar versões e sem atribuir atividades de criação de testes (os testes já existem).
 
-## 2. Arquivos disponíveis e orientações de implementação
+## 2. Arquivos disponíveis e ponto de partida
 
-Os arquivos de cabeçalho **`include/tabela_simbolos.h` e `include/semantico.h` já estão implementados**. Eles definem os tipos, as estruturas e as assinaturas das funções que serão utilizadas na segunda etapa. Os integrantes devem consultar e respeitar essas interfaces; não é necessário recriá-las.
-
-Os arquivos **`src/tabela_simbolos.c` e `src/semantico.c` já estão criados** e contêm comentários `TODO` com **orientações detalhadas para implementar cada função**. O arquivo **`src/parser.c` também contém orientações detalhadas**, junto à estrutura sintática existente, para integrar a tabela de símbolos e a análise semântica.
-
-**Como utilizar os arquivos:** localizar a função atribuída na divisão abaixo, ler integralmente os comentários que a acompanham e implementar o comportamento solicitado, respeitando as declarações dos cabeçalhos. As instruções deste guia complementam os comentários presentes no código.
-
-O arquivo `include/parser.h` deve ser atualizado apenas conforme as mudanças necessárias para integrar os tipos e a tabela de símbolos ao Parser.
-
-## 3. Divisão de responsabilidades
-
-A divisão considera a **complexidade estimada**, não apenas o número de funções. Cada integrante tem funções e arquivos identificados para evitar sobreposição.
-
-### Quadro-resumo das atividades
-
-| Integrante | Arquivo(s) de implementação | Funções atribuídas | Atividade principal |
-|---|---|---|---|
-| **1** | `src/tabela_simbolos.c` | `hash_nome()`, `tabela_inicializar()`, `tabela_buscar()`, `tabela_inserir()` | Construir a tabela hash, pesquisar símbolos e impedir declarações duplicadas. |
-| **2** | `src/tabela_simbolos.c`, `src/parser.c` | `tabela_liberar()`, `tipo_nome()`, `declaracao()` | Gerenciar memória e registrar declarações de variáveis na tabela. |
-| **3** | `src/semantico.c`; auxiliar opcional em `src/parser.c` | `numerico()`, `semantico_binaria()`; `aplicar_binaria()` (opcional) | Implementar as regras de tipos dos operadores binários. |
-| **4** | `src/semantico.c`, `src/parser.c` | `semantico_unaria()`, `semantico_atribuicao()`, `semantico_condicao()`, `fator()`; `variavel_tipo()` (opcional) | Implementar regras unárias, atribuição, condição e reconhecimento dos tipos dos fatores. |
-| **5** | `src/parser.c` | `termo()`, `soma()`, `relacional()`, `expressao()` | Propagar e verificar os tipos das expressões no Parser. |
-| **6** | `src/parser.c`, `include/parser.h`; ajuste eventual em `src/main.c` | `comando()`, `parser_inicializar()`, `parser_analisar_programa()`; `erro_semantico()` e `parser_finalizar()` (a criar) | Verificar comandos, tratar erros e organizar o ciclo de vida do Parser. |
-
-**Observação:** as funções marcadas como *opcionais* são auxiliares sugeridas, não funções já existentes. As funções *a criar* devem ser adicionadas durante a integração. As atribuições detalhadas de cada integrante estão descritas abaixo.
-
-
-### Integrante 1 — Estrutura e inserção na tabela hash
-
-**Arquivo:** `src/tabela_simbolos.c`  
-**Funções:** `hash_nome()`, `tabela_inicializar()`, `tabela_buscar()`, `tabela_inserir()`  
-**Interface relacionada:** `include/tabela_simbolos.h`
-
-**Implementar:** calcular o índice hash; inicializar o vetor; percorrer as listas encadeadas; validar nomes e tipos; impedir nomes duplicados; alocar e inserir símbolos. Uma colisão hash **não** significa duplicidade: comparar os nomes completos.
-
-### Integrante 2 — Ciclo de vida da tabela e declarações
-
-**Arquivos:** `src/tabela_simbolos.c`, `src/parser.c`  
-**Funções:** `tabela_liberar()`, `tipo_nome()`, `declaracao()`  
-**Interfaces relacionadas:** `include/tabela_simbolos.h`, `include/parser.h`
-
-**Implementar:** liberar todos os nós de cada lista; converter tipos em textos; guardar temporariamente nomes e linhas de uma declaração até ler seu tipo; inserir cada identificador e interpretar os retornos de `tabela_inserir()` (`1`, `0`, `-1`).
-
-### Integrante 3 — Operadores binários e aplicação
-
-**Arquivos:** `src/semantico.c`, `src/parser.c`  
-**Funções:** `numerico()`, `semantico_binaria()` e `aplicar_binaria()` **(auxiliar opcional, se adotada)**  
-**Interface relacionada:** `include/semantico.h`
-
-**Implementar:** regras de compatibilidade para `+`, `-`, `*`, `/`, `div`, comparações, `and` e `or`; retornar `TIPO_INVALIDO` para combinações proibidas. Se a equipe optar por `aplicar_binaria()`, centralizar nela a chamada à análise semântica e o tratamento de erro no Parser.
-
-### Integrante 4 — Operadores unários, atribuição e fator
-
-**Arquivos:** `src/semantico.c`, `src/parser.c`  
-**Funções:** `semantico_unaria()`, `semantico_atribuicao()`, `semantico_condicao()`, `fator()` e `variavel_tipo()` **(auxiliar opcional, se adotada)**  
-**Interfaces relacionadas:** `include/semantico.h`, `include/parser.h`
-
-**Implementar:** `not` e menos unário; igualdade exata de tipos nas atribuições; exigência de condição booleana; recuperação de tipos de literais, identificadores e expressões entre parênteses. Consultar a tabela hash para identificadores e rejeitar variáveis não declaradas.
-
-### Integrante 5 — Propagação de tipos nas expressões
-
-**Arquivo:** `src/parser.c`  
-**Funções:** `termo()`, `soma()`, `relacional()`, `expressao()`  
-**Interface relacionada:** `include/parser.h`
-
-**Implementar:** retornar `TipoDado`; preservar operadores antes de avançar tokens; combinar tipos via `semantico_binaria()` (ou auxiliar acordada); propagar o resultado de cada subexpressão, respeitando precedência e associatividade da gramática existente.
-
-### Integrante 6 — Comandos, erros e ciclo de vida do Parser
-
-**Arquivos:** `src/parser.c`, `include/parser.h`  
-**Funções:** `comando()`, `erro_semantico()` **(a criar)**, `parser_inicializar()`, `parser_analisar_programa()`, `parser_finalizar()` **(a criar)**  
-**Arquivo relacionado:** `src/main.c` (para chamada da finalização, se necessária)
-
-**Implementar:** verificar atribuição, `if`, `while`, `repeat/until` e `write`; emitir mensagens de erro semântico com linha e motivo; inicializar e liberar a tabela; atualizar a estrutura `Parser` e a API de inicialização/finalização. **A integração final é responsabilidade de todos**, não apenas deste integrante.
-
-## 4. Interfaces e regras de integração dos módulos
-
-1. `fator()`, `termo()`, `soma()`, `relacional()` e `expressao()` devem retornar `TipoDado`. O Integrante 4 cuida de `fator()`; o Integrante 5, das demais funções.
-2. A tabela hash usa **encadeamento separado**: cada posição do vetor aponta para uma lista de símbolos.
-3. `tabela_inserir()` retorna `1` (sucesso), `0` (identificador duplicado) ou `-1` (dados inválidos ou falha de memória). O Integrante 2 usa esse contrato em `declaracao()`.
-4. `semantico.c` e `tabela_simbolos.c` **não imprimem erros semânticos**: retornam tipos, ponteiros ou códigos. O Parser identifica e comunica o erro.
-5. Respeitar as interfaces já implementadas em `include/tabela_simbolos.h` e `include/semantico.h`. Atualizar `include/parser.h` de maneira consistente com os retornos `TipoDado` e a integração da tabela de símbolos.
-6. O nome do programa não é uma variável; `boolean` é um tipo interno e não pode ser declarado na seção `var`.
-7. Não criar escopos adicionais em cada `begin/end` sem exigência do professor.
-8. Preservar a sintaxe, a pontuação e o Lexer existente. **Não utilizar AST.**
-
-## 5. Regras semânticas
-
-| Categoria | Regra |
+| Caminho relativo a `micropascal-compiler/` | Situação e uso |
 |---|---|
-| Declarações | Aceitar `integer`, `real` e `char`; rejeitar nomes duplicados e uso de identificadores não declarados. |
-| Adição e subtração | `integer +/- integer → integer`; `real +/- real → real`; `char +/- integer → char`. **A ordem importa:** `integer +/- char` é inválido. |
-| Multiplicação | `integer * integer → integer`; `real * real → real`. |
-| Divisão inteira | `integer div integer → integer`. |
-| Divisão real | `real / real → real`. |
-| Comparações de ordem | `<`, `<=`, `>` e `>=` exigem operandos numéricos do mesmo tipo; resultado `boolean`. |
-| Igualdade | `=` e `<>` exigem tipos iguais, incluindo `char` e `boolean`; resultado `boolean`. |
-| Operadores lógicos | `and` e `or` exigem dois booleanos; resultado `boolean`. |
-| Operador `not` | `not boolean → boolean` (**confirmar com o professor caso não esteja explícito no enunciado**). |
-| Menos unário | `-integer → integer`; `-real → real`. |
-| Atribuição | Tipo do destino idêntico ao tipo da expressão; sem conversão implícita. |
-| Condições | Expressões de `if`, `while` e `until` devem ser booleanas. |
+| `include/tabela_simbolos.h` | **Já definido**: `TAM_TABELA`, `TAM_NOME`, `TipoDado`, `Simbolo`, `TabelaSimbolos` e protótipos. |
+| `include/semantico.h` | **Já definido**: protótipos de `semantico_binaria`, `semantico_unaria`, `semantico_atribuicao` e `semantico_condicao`. |
+| `src/tabela_simbolos.c` | Funções existentes com **TODO e roteiro detalhado**; implementar seus corpos. |
+| `src/semantico.c` | Funções existentes com **TODO e regras detalhadas**; implementar seus corpos. |
+| `src/parser.c` | Analisador sintático existente, com **TODO e roteiro detalhado** para integração semântica. |
+| `include/parser.h` | Estrutura `Parser` ainda contém `Lexer *lexer` e `Token token_atual`; adicionar gerenciamento da tabela e ajustar a API quando necessário. |
+| `src/main.c` | Já abre o arquivo, inicializa o Lexer e chama o Parser; completar a finalização/integração indicada nos comentários. |
 
-**Tratamento de erro:** se uma operação retornar `TIPO_INVALIDO`, o Parser deve sinalizar erro semântico, indicando a linha e o motivo. A busca por identificador inexistente também deve produzir erro semântico.
+**Regra de trabalho:** antes de alterar uma função, ler integralmente seu comentário no respectivo `.c`. Manter as assinaturas públicas dos cabeçalhos existentes, salvo alteração acordada para a integração do Parser. Não duplicar as definições de `TipoDado` nem de `TabelaSimbolos`.
 
-## 6. Ordem de implementação e integração
+## 3. Distribuição de atividades entre os seis integrantes
 
-1. **Consultar os arquivos existentes:** todos leem as interfaces já implementadas em `include/tabela_simbolos.h` e `include/semantico.h` e os comentários `TODO` das funções sob sua responsabilidade. O Integrante 6 coordena com a equipe as alterações necessárias em `include/parser.h`.
-2. **Implementar os módulos:** Integrantes 1 e 2 trabalham em funções diferentes de `src/tabela_simbolos.c`; Integrantes 3 e 4, em funções diferentes de `src/semantico.c`.
-3. **Integrar ao Parser:** Integrantes 2, 4, 5 e 6 alteram funções distintas de `src/parser.c`, usando commits separados e comunicando mudanças de assinatura.
-4. **Consolidar coletivamente:** todos verificam se os `TODOs` foram implementados e se cabeçalhos, chamadas e retornos são compatíveis. Não concentrar a resolução de conflitos no Integrante 6.
+A distribuição procura equilibrar **complexidade e esforço**, não apenas o número de funções. As responsabilidades são exclusivas para evitar edições simultâneas conflitantes; a integração entre partes deve ser coordenada.
 
-> **Critério de equilíbrio:** a divisão busca aproximar o esforço de implementação entre os seis integrantes. Caso uma parte fique significativamente mais complexa do que o previsto, redistribuir apoio de implementação e revisão entre os integrantes.
+| Integrante | Local exato | Funções / trechos sob responsabilidade | Atividade |
+|---|---|---|---|
+| **1** | `src/tabela_simbolos.c` | `hash_nome()`, `tabela_inicializar()`, `tabela_buscar()`, `tabela_inserir()` | Implementar índice hash, inicialização, busca por lista encadeada, inserção, colisões e duplicidade. |
+| **2** | `src/tabela_simbolos.c`; `src/parser.c` | `tabela_liberar()`, `tipo_nome()`, `declaracao()` | Liberar memória, converter tipos para texto e registrar declarações de variáveis na tabela. |
+| **3** | `src/semantico.c`; `src/parser.c` | `numerico()`, `semantico_binaria()`; apoio na ligação de operadores binários | Implementar regras de tipos de `+`, `-`, `*`, `/`, `div`, comparações, igualdade, `and` e `or`; alinhar chamadas com quem implementa expressões. |
+| **4** | `src/semantico.c`; `src/parser.c` | `semantico_unaria()`, `semantico_atribuicao()`, `semantico_condicao()`, `fator()` | Implementar regras unárias, compatibilidade de atribuição/condição e identificação de tipos básicos e variáveis em fatores. |
+| **5** | `src/parser.c` | `termo()`, `soma()`, `relacional()`, `expressao()` e suas declarações antecipadas | Propagar `TipoDado` pelas expressões, aplicar operações binárias e preservar precedência/associatividade. |
+| **6** | `src/parser.c`, `include/parser.h`, `src/main.c` | `comando()`, `parser_inicializar()`, `parser_analisar_programa()`, tratamento de erros e rotina de finalização | Integrar atribuições e condições aos comandos; armazenar/inicializar/liberar a tabela e atualizar a interface do Parser e a chamada em `main`. |
+
+
+## 4. Regras e contratos que devem ser respeitados
+
+### 4.1. Tabela hash — `src/tabela_simbolos.c`
+
+- Usar `TAM_TABELA = 211` e `TAM_NOME = 256`, já definidos em `include/tabela_simbolos.h`.
+- Cada posição de `TabelaSimbolos.vetor` aponta para uma lista encadeada de `Simbolo`.
+- `hash_nome()`: acumular códigos de caracteres e reduzir por `% TAM_TABELA`, conforme o `TODO`.
+- `tabela_inicializar()`: preencher todas as posições com `NULL`.
+- `tabela_buscar()`: calcular o índice, percorrer a lista e comparar nomes completos com `strcmp`; retornar `NULL` se não encontrar.
+- `tabela_inserir()`: validar nome/tipo, impedir nomes repetidos, alocar `Simbolo`, armazenar nome/tipo/linha e encadear na posição calculada. **Retornos definidos no cabeçalho:** `1` = inserido, `0` = duplicado, `-1` = erro de dados ou memória.
+- `tabela_liberar()`: liberar todos os nós de todas as listas, sem liberar a própria estrutura quando ela não foi alocada dinamicamente.
+- `tipo_nome()`: converter os valores de `TipoDado` em textos legíveis.
+- **Colisão não é duplicidade:** nomes diferentes podem ter o mesmo índice; apenas nomes iguais representam declaração duplicada.
+- Declarações aceitas: `integer`, `real`, `char`. `boolean` é tipo interno, não declarável.
+
+### 4.2. Regras de tipos — `src/semantico.c`
+
+| Operação | Tipos aceitos | Resultado |
+|---|---|---|
+| `+` e `-` | `integer`/`integer`; `real`/`real` | Mesmo tipo numérico |
+| `+` e `-` | `char` à esquerda e `integer` à direita | `char` |
+| `*` | `integer`/`integer`; `real`/`real` | Mesmo tipo numérico |
+| `div` | `integer`/`integer` | `integer` |
+| `/` | `real`/`real` | `real` |
+| `<`, `<=`, `>`, `>=` | Dois `integer` ou dois `real` | `boolean` |
+| `=`, `<>` | Dois operandos do mesmo tipo, incluindo `char` e `boolean` | `boolean` |
+| `and`, `or` | `boolean`/`boolean` | `boolean` |
+| Menos unário | `integer` ou `real` | Mesmo tipo |
+| `not` | `boolean` | `boolean` |
+
+- `integer + char` e `integer - char` são **inválidos**; a ordem de `char +/- integer` importa.
+- Não há conversão implícita entre `integer` e `real`.
+- `semantico_binaria()` e `semantico_unaria()` retornam `TIPO_INVALIDO` para combinações proibidas.
+- `semantico_atribuicao()`: retorna `1` apenas para tipos válidos e iguais; caso contrário, `0`.
+- `semantico_condicao()`: retorna `1` apenas para `TIPO_BOOLEANO`; caso contrário, `0`.
+- A regra de `not` consta como decisão de consistência nos comentários do projeto; não foi explicitada no enunciado citado nesses comentários.
+
+### 4.3. Integração no Parser — `src/parser.c`
+
+- Alterar `fator()`, `termo()`, `soma()`, `relacional()` e `expressao()` para **retornar `TipoDado`**, incluindo a declaração antecipada de `expressao()`.
+- Em `fator()`, retornar tipos dos literais, buscar identificadores na tabela, propagar o tipo de parênteses e validar operadores unários.
+- Em `termo()`, `soma()`, `relacional()` e `expressao()`, guardar o operador **antes** de `avancar()`, combinar os tipos com `semantico_binaria()` e rejeitar `TIPO_INVALIDO`.
+- Em `declaracao()`, guardar os nomes e as linhas antes de ler o tipo em declarações como `a, b : integer;`, inserir cada símbolo e interpretar os retornos `1`, `0`, `-1`.
+- Em `comando()`, buscar a variável de destino, verificar a atribuição com `semantico_atribuicao()` e exigir condição booleana em `if`, `while` e `repeat/until` por `semantico_condicao()`.
+- Em `write`, analisar a expressão e verificar os identificadores, sem impor um tipo de saída não especificado.
+- Manter `avancar()`, `esperar()`, `em()` e a estrutura sintática como mecanismos de reconhecimento; não misturar erros sintáticos e semânticos.
+- A gramática existente declara variáveis na seção `var`; não criar escopos adicionais por `begin/end` sem requisito.
+
+### 4.4. Interface e ciclo de vida — `include/parser.h` e `src/main.c`
+
+- Integrar `TabelaSimbolos` ao estado do Parser de forma consistente, sem recriar a estrutura já definida em `include/tabela_simbolos.h`.
+- Inicializar a tabela **antes** de registrar ou consultar variáveis.
+- Garantir liberação dos nós da tabela ao terminar a análise, definindo a rotina de finalização e seu protótipo conforme a integração.
+- Atualizar `main.c` para chamar a finalização adotada, preservando a abertura do arquivo, o Lexer e o fechamento do arquivo.
+- O Parser atualmente usa `exit()` em erros: definir um tratamento coerente para que erros semânticos sejam identificados corretamente e a limpeza de recursos seja considerada.
+
+## 5. Coordenação entre integrantes
+
+1. **Integrantes 1 e 2:** combinar o uso da tabela hash antes de integrar `declaracao()`; não alterar simultaneamente as mesmas funções de `src/tabela_simbolos.c`.
+2. **Integrantes 3, 4 e 5:** utilizar exatamente os `TipoToken` e `TipoDado` dos cabeçalhos; o integrante 5 chama as regras implementadas pelos integrantes 3 e 4.
+3. **Integrantes 2, 4, 5 e 6:** combinar as alterações em `src/parser.c` para evitar conflitos; cada integrante edita apenas as funções atribuídas.
+4. **Integrante 6:** coordenar as alterações de `include/parser.h` e `src/main.c`, informando à equipe como acessar a tabela dentro de `Parser`.
+5. **Todos:** manter os comentários de orientação úteis, não alterar desnecessariamente o Lexer, não criar AST e não substituir os protótipos existentes por APIs incompatíveis.
+
+## 6. Critérios de conclusão da etapa
+
+- A tabela hash registra e consulta símbolos com listas encadeadas, detecta nomes duplicados e libera a memória alocada.
+- O Parser identifica o uso de variáveis não declaradas e recupera seus tipos.
+- As expressões retornam `TipoDado` e aplicam as regras de operadores de `semantico.c`.
+- Atribuições e condições de comandos passam pelas verificações semânticas previstas.
+- Os erros semânticos são diferenciados dos sintáticos.
+- A integração funciona com as interfaces existentes e com as atualizações necessárias de `parser.h` e `main.c`, **sem AST**.
+
