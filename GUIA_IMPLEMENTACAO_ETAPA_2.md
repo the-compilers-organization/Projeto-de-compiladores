@@ -25,6 +25,20 @@ O arquivo `include/parser.h` deve ser atualizado apenas conforme as mudanças ne
 
 A divisão considera a **complexidade estimada**, não apenas o número de funções. Cada integrante tem funções e arquivos identificados para evitar sobreposição.
 
+### Quadro-resumo das atividades
+
+| Integrante | Arquivo(s) de implementação | Funções atribuídas | Atividade principal |
+|---|---|---|---|
+| **1** | `src/tabela_simbolos.c` | `hash_nome()`, `tabela_inicializar()`, `tabela_buscar()`, `tabela_inserir()` | Construir a tabela hash, pesquisar símbolos e impedir declarações duplicadas. |
+| **2** | `src/tabela_simbolos.c`, `src/parser.c` | `tabela_liberar()`, `tipo_nome()`, `declaracao()` | Gerenciar memória e registrar declarações de variáveis na tabela. |
+| **3** | `src/semantico.c`; auxiliar opcional em `src/parser.c` | `numerico()`, `semantico_binaria()`; `aplicar_binaria()` (opcional) | Implementar as regras de tipos dos operadores binários. |
+| **4** | `src/semantico.c`, `src/parser.c` | `semantico_unaria()`, `semantico_atribuicao()`, `semantico_condicao()`, `fator()`; `variavel_tipo()` (opcional) | Implementar regras unárias, atribuição, condição e reconhecimento dos tipos dos fatores. |
+| **5** | `src/parser.c` | `termo()`, `soma()`, `relacional()`, `expressao()` | Propagar e verificar os tipos das expressões no Parser. |
+| **6** | `src/parser.c`, `include/parser.h`; ajuste eventual em `src/main.c` | `comando()`, `parser_inicializar()`, `parser_analisar_programa()`; `erro_semantico()` e `parser_finalizar()` (a criar) | Verificar comandos, tratar erros e organizar o ciclo de vida do Parser. |
+
+**Observação:** as funções marcadas como *opcionais* são auxiliares sugeridas, não funções já existentes. As funções *a criar* devem ser adicionadas durante a integração. As atribuições detalhadas de cada integrante estão descritas abaixo.
+
+
 ### Integrante 1 — Estrutura e inserção na tabela hash
 
 **Arquivo:** `src/tabela_simbolos.c`  
