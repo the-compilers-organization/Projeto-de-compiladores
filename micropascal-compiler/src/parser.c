@@ -283,28 +283,69 @@ static void bloco(Parser *p);
  *
  *   Nao construir AST.
  */
-static void fator(Parser *p) {
-    switch (p->token_atual.tipo) {
-        case TOKEN_ABRE_PAREN:
-            avancar(p);
-            expressao(p);
-            esperar(p, TOKEN_FECHA_PAREN);
-            return;
+static TipoDado fator(Parser *p) {
 
-        case TOKEN_NOT:
-            avancar(p);
-            fator(p);
-            return;
+    TipoDado tipo;
+    TipoToken op;
+    Token id;
+    Simbolo *s;
+
+    switch (p->token_atual.tipo) {
 
         case TOKEN_INTEIRO_LITERAL:
-        case TOKEN_REAL_LITERAL:
-        case TOKEN_CHAR_LITERAL:
-        case TOKEN_IDENTIFICADOR:
             avancar(p);
-            return;
+            return TIPO_INTEIRO;
+
+        case TOKEN_REAL_LITERAL:
+            avancar(p);
+            return TIPO_REAL;
+        
+        case TOKEN_CHAR_LITERAL:
+            avancar(p);
+            return TIPO_CHAR;
+
+        case TOKEN_IDENTIFICADOR: 
+            id = p->token_atual;
+            s = tabela_buscar(&p->tabela, id.lexema);
+            if(s == NULL){
+                erro_semantico(p, id.lexema, "variavel nao declarada");
+                return TIPO_INVALIDO;
+            }
+            tipo = s->tipo;
+            avancar(p);
+            return tipo;
+
+        case TOKEN_ABRE_PAREN:
+            avancar(p);
+            tipo = expressao(p);
+            esperar(p, TOKEN_FECHA_PAREN);
+            return tipo;
+
+        case TOKEN_NOT:
+            op = p->token_atual.tipo;
+            avancar(p);
+            tipo = fator(p);
+            tipo = semantico_unaria(op, tipo);
+            if(tipo == TIPO_INVALIDO){
+                erro_semantico(p, NULL, "o operador not exige operando booleano");
+                return TIPO_INVALIDO;
+            }
+            return tipo;
+
+        case TOKEN_MENOS:
+            op = p->token_atual.tipo;
+            avancar(p);
+            tipo = fator(p);
+            tipo = semantico_unaria(op, tipo);
+            if(tipo == TIPO_INVALIDO){
+                erro_semantico(p, NULL, "o operador menos unario exige operando integer ou real");
+                return TIPO_INVALIDO;
+            }
+            return tipo;
 
         default:
             erro(p);
+            return TIPO_INVALIDO;
     }
 }
 
