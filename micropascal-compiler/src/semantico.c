@@ -3,6 +3,13 @@
 
 
 static int numerico(TipoDado t) {
+    
+    
+    if (t == TIPO_INTEIRO || t == TIPO_REAL) {
+        return 1;
+    }
+    return 0;
+
     /* TODO: verificar se t corresponde a TIPO_INTEIRO ou TIPO_REAL. */
 
     /*
@@ -22,7 +29,47 @@ static int numerico(TipoDado t) {
 
 
 TipoDado semantico_binaria(TipoToken op, TipoDado a, TipoDado b) {
-    /* TODO: implementar as regras de tipos das operacoes binarias. */
+   switch (op) {
+        case TOKEN_MAIS:
+        case TOKEN_MENOS:
+            if (numerico(a) && a == b) return a;
+            if (a == TIPO_CHAR && b == TIPO_INTEIRO) return TIPO_CHAR;
+            return TIPO_INVALIDO;
+
+        case TOKEN_MULT:
+            if (numerico(a) && a == b) return a;
+            return TIPO_INVALIDO;
+
+        case TOKEN_DIV_INT:
+            if (a == TIPO_INTEIRO && b == TIPO_INTEIRO) return TIPO_INTEIRO;
+            return TIPO_INVALIDO;
+
+        case TOKEN_DIV_REAL:
+            if (a == TIPO_REAL && b == TIPO_REAL) return TIPO_REAL;
+            return TIPO_INVALIDO;
+
+        case TOKEN_MENOR:
+        case TOKEN_MENOR_IGUAL:
+        case TOKEN_MAIOR:
+        case TOKEN_MAIOR_IGUAL:
+            if (numerico(a) && a == b) return TIPO_BOOLEANO;
+            return TIPO_INVALIDO;
+
+        case TOKEN_IGUAL:
+        case TOKEN_DIFERENTE:
+            if (a != TIPO_INVALIDO && a == b) return TIPO_BOOLEANO;
+            return TIPO_INVALIDO;
+
+        case TOKEN_AND:
+        case TOKEN_OR:
+            if (a == TIPO_BOOLEANO && b == TIPO_BOOLEANO) return TIPO_BOOLEANO;
+            return TIPO_INVALIDO;
+
+        default:
+            return TIPO_INVALIDO;
+    }
+
+     /* TODO: implementar as regras de tipos das operacoes binarias. */
 
     /*
      * Determina o tipo resultante de uma operacao binaria.
@@ -97,8 +144,8 @@ TipoDado semantico_binaria(TipoToken op, TipoDado a, TipoDado b) {
      *   Esta funcao verifica apenas os TIPOS.
      *   Nao deve realizar calculos com os valores.
      */
-}
 
+}
 
 TipoDado semantico_unaria(TipoToken op, TipoDado a) {
     /* TODO: verificar o operador e validar o tipo do operando. */
