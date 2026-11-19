@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../include/parser.h"
 
 /*
@@ -511,81 +512,84 @@ static void expressao(Parser *p) {
 }
 
 
-/*
- * DECLARACAO
- *
- * TODO: registrar as variaveis na tabela hash.
- *
- * OBJETIVO:
- * Armazenar as declaracoes e impedir nomes duplicados.
- *
- * ROTEIRO:
- *   1. Ler o primeiro identificador.
- *   2. Guardar seu nome e sua linha.
- *   3. Enquanto encontrar virgulas:
- *      a) Consumir a virgula.
- *      b) Ler o proximo identificador.
- *      c) Guardar nome e linha.
- *   4. Consumir TOKEN_DOISPONTOS.
- *   5. Identificar o tipo declarado:
- *
- *      TOKEN_INTEGER -> TIPO_INTEIRO
- *      TOKEN_REAL    -> TIPO_REAL
- *      TOKEN_CHAR    -> TIPO_CHAR
- *
- *   6. Para cada identificador armazenado,
- *      chamar tabela_inserir().
- *
- *   7. Verificar o retorno:
- *      1  -> insercao realizada.
- *      0  -> erro semantico: declaracao duplicada.
- *     -1  -> dados invalidos ou falha de memoria.
- *
- *   8. Consumir TOKEN_PONTOVIRG.
- *
- * REGRAS SEMANTICAS:
- *   - Nao permitir duas variaveis com o mesmo nome.
- *   - Detectar nomes repetidos na mesma declaracao.
- *   - Detectar nomes repetidos em declaracoes diferentes.
- *   - Nao permitir declaracoes do tipo booleano.
- *   - Armazenar nome, tipo e linha.
- *
- * EXEMPLO:
- *   var
- *       a, b, c : integer;
- *
- *   Os tres identificadores devem ser registrados
- *   separadamente com o tipo TIPO_INTEIRO.
- *
- * IMPORTANTE:
- *   Guardar os identificadores antes de ler o tipo.
- *   A gramatica permite varios nomes antes de ':'.
- *
- *   A tabela hash deve ser utilizada para verificar
- *   a duplicidade dos identificadores.
- *
- *   Nao confundir o nome do programa com uma
- *   declaracao de variavel.
- */
 static void declaracao(Parser *p) {
-    esperar(p, TOKEN_IDENTIFICADOR);
+    typedef struct {
+        char nome[TAM_NOME];
+        int linha;
+    } IdentificadorPendente;
 
-    while (p->token_atual.tipo == TOKEN_VIRGULA) {
+    size_t quantidade = 0;
+    size_t capacidade = 4;
+    IdentificadorPendente *ids = malloc(capacidade * sizeof *ids);
+    if (ids == NULL) {
+        fprintf(stderr, "Erro semantico: memoria insuficiente ao ler declaracao.\n");
+        tabela_liberar(&p->tabela);
+        exit(EXIT_FAILURE);
+    }
+
+    for (;;) {
+        if (p->token_atual.tipo != TOKEN_IDENTIFICADOR) {
+            free(ids);
+            erro(p);
+        }
+
+        if (quantidade == capacidade) {
+            capacidade *= 2;
+            IdentificadorPendente *novo = realloc(ids, capacidade * sizeof *ids);
+            if (novo == NULL) {
+                fprintf(stderr, "Erro semantico: memoria insuficiente ao ler declaracao.\n");
+                free(ids);
+                tabela_liberar(&p->tabela);
+                exit(EXIT_FAILURE);
+            }
+            ids = novo;
+        }
+
+        memcpy(ids[quantidade].nome, p->token_atual.lexema, TAM_NOME);
+        ids[quantidade].nome[TAM_NOME - 1] = '\0';
+        ids[quantidade].linha = p->token_atual.linha;
+        ++quantidade;
         avancar(p);
-        esperar(p, TOKEN_IDENTIFICADOR);
+
+        if (p->token_atual.tipo != TOKEN_VIRGULA)
+            break;
+        avancar(p);
     }
 
     esperar(p, TOKEN_DOISPONTOS);
 
-    TipoToken tipo = p->token_atual.tipo;
-
-    if (tipo != TOKEN_INTEGER &&
-        tipo != TOKEN_REAL &&
-        tipo != TOKEN_CHAR)
-        erro(p);
-
+    TipoDado tipo;
+    switch (p->token_atual.tipo) {
+        case TOKEN_INTEGER: tipo = TIPO_INTEIRO; break;
+        case TOKEN_REAL:    tipo = TIPO_REAL;    break;
+        case TOKEN_CHAR:    tipo = TIPO_CHAR;    break;
+        default:
+            free(ids);
+            erro(p);
+            return;
+    }
     avancar(p);
     esperar(p, TOKEN_PONTOVIRG);
+
+    for (size_t i = 0; i < quantidade; ++i) {
+        int resultado = tabela_inserir(&p->tabela, ids[i].nome, tipo, ids[i].linha);
+        if (resultado != 1) {
+            if (resultado == 0) {
+                fprintf(stderr,
+                        "Erro semantico na linha %d: identificador '%s' ja declarado.\n",
+                        ids[i].linha, ids[i].nome);
+            } else {
+                fprintf(stderr,
+                        "Erro semantico na linha %d: nao foi possivel registrar '%s'.\n",
+                        ids[i].linha, ids[i].nome);
+            }
+            free(ids);
+            tabela_liberar(&p->tabela);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    free(ids);
 }
 
 
@@ -782,6 +786,7 @@ static void comando(Parser *p) {
  */
 void parser_inicializar(Parser *p, Lexer *lexer) {
     p->lexer = lexer;
+    tabela_inicializar(&p->tabela);
     avancar(p);
 }
 
@@ -846,4 +851,6 @@ void parser_analisar_programa(Parser *p) {
 
     if (p->token_atual.tipo != TOKEN_EOF)
         erro(p);
+
+    tabela_liberar(&p->tabela);
 }
