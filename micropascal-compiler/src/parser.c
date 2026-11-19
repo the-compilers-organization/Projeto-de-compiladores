@@ -1,8 +1,9 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../include/parser.h"
+#include "../include/tabela_simbolos.h"
+#include "../include/semantico.h"
 
 /*
  * ROTEIRO PARA A EQUIPE - SEGUNDA ETAPA
@@ -202,10 +203,10 @@ static const TipoToken multiplicativos[] = {
  *
  * Atualizar tambem as chamadas correspondentes.
  */
-static void expressao(Parser *p);
+// Declaração antecipada
+static TipoDado expressao(Parser *p);
 static void comando(Parser *p);
 static void bloco(Parser *p);
-
 
 /*
  * FATOR
@@ -388,13 +389,32 @@ static TipoDado fator(Parser *p) {
  *   Nao permitir conversao implicita de tipos.
  *   Preservar a associatividade a esquerda.
  */
-static void termo(Parser *p) {
-    fator(p);
+// static void termo(Parser *p) {
+//     fator(p);
 
-    while (em(p->token_atual.tipo, multiplicativos, 3)) {
+//     while (em(p->token_atual.tipo, multiplicativos, 3)) {
+//         avancar(p);
+//         fator(p);
+//     }
+// }
+
+static TipoDado termo(Parser *p) { //devolve TipoDado (n e mais void)
+    TipoDado tipo_esq = fator(p); // guarda o tipo da esquerda
+    
+    while (em(p->token_atual.tipo, multiplicativos, 3)) { // achar *, / ou div
+        Token op = p->token_atual; // salva qual é o operador antes de pular
         avancar(p);
-        fator(p);
+        TipoDado tipo_dir = fator(p); // guarda o tipo da direita
+        TipoDado resultado = semantico_binaria(op.tipo, tipo_esq, tipo_dir); //pergunta qual o tipo do resultado
+
+        if (resultado == TIPO_INVALIDO) { //se não combinar (ex: 'a' * 5) é erro
+            erro_semantico(p, op.linha, op.lexema, "tipos incompativeis na operacao");//Chamada da função de erro semântico da equipe
+        }
+
+        tipo_esq = resultado;
     }
+
+    return tipo_esq; //devolver o tipo final da conta
 }
 
 
@@ -438,13 +458,32 @@ static void termo(Parser *p) {
  *
  *   Preservar a associatividade a esquerda.
  */
-static void soma(Parser *p) {
-    termo(p);
+// static void soma(Parser *p) {
+//     termo(p);
 
-    while (em(p->token_atual.tipo, aditivos, 2)) {
+//     while (em(p->token_atual.tipo, aditivos, 2)) {
+//         avancar(p);
+//         termo(p);
+//     }
+// }
+
+static TipoDado soma(Parser *p) {
+    TipoDado tipo_esq = termo(p);
+    
+    while (em(p->token_atual.tipo, aditivos, 2)){
+        Token op = p->token_atual;
         avancar(p);
-        termo(p);
+        TipoDado tipo_dir = termo(p);
+        TipoDado resultado = semantico_binaria(op.tipo, tipo_esq, tipo_dir);
+        
+        if (resultado == TIPO_INVALIDO) {
+            erro_semantico(p, op.linha, op.lexema, "tipos incompativeis na operacao");
+        }
+
+        tipo_esq = resultado;
     }
+
+    return tipo_esq;
 }
 
 
@@ -501,13 +540,32 @@ static void soma(Parser *p) {
  *
  *   Preservar a gramatica e a precedencia atuais.
  */
-static void relacional(Parser *p) {
-    soma(p);
+// static void relacional(Parser *p) {
+//     soma(p);
+
+//     while (em(p->token_atual.tipo, relacionais, 6)) {
+//         avancar(p);
+//         soma(p);
+//     }
+// }
+
+static TipoDado relacional(Parser *p) {
+    TipoDado tipo_esq = soma(p);
 
     while (em(p->token_atual.tipo, relacionais, 6)) {
+        Token op = p->token_atual;
         avancar(p);
-        soma(p);
+        TipoDado tipo_dir = soma(p);
+        TipoDado resultado = semantico_binaria(op.tipo, tipo_esq, tipo_dir);
+
+        if (resultado == TIPO_INVALIDO) {
+            erro_semantico(p, op.linha, op.lexema, "tipos incompativeis na comparacao");
+        }
+
+        tipo_esq = resultado;
     }
+
+    return tipo_esq;
 }
 
 
@@ -543,13 +601,32 @@ static void relacional(Parser *p) {
  *
  *   Preservar a precedencia definida pela gramatica.
  */
-static void expressao(Parser *p) {
-    relacional(p);
+// static void expressao(Parser *p) {
+//     relacional(p);
+
+//     while (em(p->token_atual.tipo, logicos, 2)) {
+//         avancar(p);
+//         relacional(p);
+//     }
+// }
+
+static TipoDado expressao(Parser *p) {
+    TipoDado tipo_esq = relacional(p);
 
     while (em(p->token_atual.tipo, logicos, 2)) {
+        Token op = p->token_atual;
         avancar(p);
-        relacional(p);
+        TipoDado tipo_dir = relacional(p);
+        TipoDado resultado = semantico_binaria(op.tipo, tipo_esq, tipo_dir);
+
+        if (resultado == TIPO_INVALIDO) {
+            erro_semantico(p, op.linha, op.lexema, "tipos incompativeis na operacao logica");
+        }
+
+        tipo_esq = resultado;
     }
+
+    return tipo_esq;
 }
 
 
