@@ -148,6 +148,23 @@ TipoDado semantico_binaria(TipoToken op, TipoDado a, TipoDado b) {
 }
 
 TipoDado semantico_unaria(TipoToken op, TipoDado a) {
+
+    if(op == TOKEN_MENOS){
+        if(a == TIPO_INTEIRO || a == TIPO_REAL){
+            return a;
+        }
+        return TIPO_INVALIDO;
+    }
+
+    if(op == TOKEN_NOT){
+        if(a == TIPO_BOOLEANO){
+            return TIPO_BOOLEANO;
+        }
+        return TIPO_INVALIDO;
+    }
+
+    return TIPO_INVALIDO;
+
     /* TODO: verificar o operador e validar o tipo do operando. */
 
     /*
@@ -192,6 +209,17 @@ TipoDado semantico_unaria(TipoToken op, TipoDado a) {
 
 
 int semantico_atribuicao(TipoDado destino, TipoDado origem) {
+
+    if(destino == TIPO_INVALIDO || origem == TIPO_INVALIDO){
+        return 0;
+    }
+
+    if(destino == origem){
+        return 1;
+    }
+
+    return 0;
+
     /* TODO: verificar se os tipos sao iguais e validos. */
 
     /*
@@ -230,6 +258,13 @@ int semantico_atribuicao(TipoDado destino, TipoDado origem) {
 
 
 int semantico_condicao(TipoDado tipo) {
+
+    if(tipo == TIPO_BOOLEANO){
+        return 1;
+    }
+
+    return 0;
+
     /* TODO: verificar se o tipo corresponde a TIPO_BOOLEANO. */
 
     /*
