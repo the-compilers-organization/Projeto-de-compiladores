@@ -1,6 +1,6 @@
 /* Executor dos testes MicroPascal - C11, Windows e Linux.
-   Uso: ./executar_testes ./micropascal [--etapa1]
-   Execute a partir da raiz do projeto, onde esta a pasta testes/test/. */
+   Uso: ./executar_testes ./micropascal
+   Execute a partir de micropascal-compiler/, onde esta a pasta test/. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
         return 2;
     }
     executavel = argv[1];
-    manifesto = fopen("testes/test/manifesto.csv", "rb");
+    manifesto = fopen("test/manifesto.csv", "rb");
     if (!manifesto) {
         fprintf(stderr, "Nao foi possivel abrir o manifesto de testes. Execute na raiz do compilador.\n");
         return 2;
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     relatorio = NULL;
     for (indice_relatorio = 1; indice_relatorio <= 999; ++indice_relatorio) {
         snprintf(caminho_relatorio, sizeof caminho_relatorio,
-                 "testes/test/resultado_execucao_%03d.csv", indice_relatorio);
+                 "test/resultado_execucao_%03d.csv", indice_relatorio);
         relatorio = fopen(caminho_relatorio, "wx");
         if (relatorio) break;
     }
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
         *p2++ = '\0';
         p3 = strchr(p2, ',');
         if (p3) *p3 = '\0';
-        if (snprintf(caminho, sizeof caminho, "testes/test/%s", linha) >= (int)sizeof caminho) {
+        if (snprintf(caminho, sizeof caminho, "test/%s", linha) >= (int)sizeof caminho) {
             fprintf(stderr, "Caminho de teste muito longo.\n");
             divergencias++; total++;
             continue;
@@ -111,11 +111,11 @@ int main(int argc, char **argv) {
            comeca com um executavel entre aspas e usa redirecionamento. */
 #ifdef _WIN32
         if (snprintf(comando, sizeof comando,
-                "\"\"%s\" \"%s\" > \"testes/test/.saida_teste.tmp\" 2>&1\"",
+                "\"\"%s\" \"%s\" > \"test/.saida_teste.tmp\" 2>&1\"",
                 executavel, caminho) >= (int)sizeof comando) {
 #else
         if (snprintf(comando, sizeof comando,
-                "\"%s\" \"%s\" > \"testes/test/.saida_teste.tmp\" 2>&1",
+                "\"%s\" \"%s\" > \"test/.saida_teste.tmp\" 2>&1",
                 executavel, caminho) >= (int)sizeof comando) {
 #endif
             fprintf(stderr, "Comando excede o limite.\n");
@@ -124,9 +124,9 @@ int main(int argc, char **argv) {
         }
         /* Impede classificar a saida de um teste anterior caso falhe
            a criacao do arquivo temporario. */
-        remove("testes/test/.saida_teste.tmp");
+        remove("test/.saida_teste.tmp");
         retorno = system(comando);
-        f = fopen("testes/test/.saida_teste.tmp", "rb");
+        f = fopen("test/.saida_teste.tmp", "rb");
         if (f) {
             lidos = fread(saida, 1, sizeof saida - 1, f);
             saida[lidos] = '\0';
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
         csv_texto(relatorio, !strcmp(esperado, observado) ? "OK" : "DIVERGENCIA"); fputc(',', relatorio);
         csv_texto(relatorio, saida); fputc('\n', relatorio);
     }
-    remove("testes/test/.saida_teste.tmp");
+    remove("test/.saida_teste.tmp");
     fclose(manifesto);
     if (fclose(relatorio) != 0) {
         perror("Erro ao finalizar o relatorio CSV");
