@@ -61,9 +61,15 @@ int main(int argc, char **argv) {
        O modo "wx" (C11) falha se o arquivo ja existir. */
     relatorio = NULL;
     for (indice_relatorio = 1; indice_relatorio <= 999; ++indice_relatorio) {
+        FILE *existe;
         snprintf(caminho_relatorio, sizeof caminho_relatorio,
                  "test/resultado_execucao_%03d.csv", indice_relatorio);
-        relatorio = fopen(caminho_relatorio, "wx");
+        existe = fopen(caminho_relatorio, "rb");
+        if (existe) {
+            fclose(existe);
+            continue;
+        }
+        relatorio = fopen(caminho_relatorio, "w");
         if (relatorio) break;
     }
     if (!relatorio) {
