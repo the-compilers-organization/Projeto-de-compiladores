@@ -12,16 +12,16 @@
   <strong>Parte 1 — Análise Léxica e Sintática | Parte 2 — Análise Semântica com Tabela de Símbolos e Geração de Código Intermediário</strong>
 </p>
 
-> **Status do Projeto:** 🚧 Em desenvolvimento — Lexer e Parser implementados; análise semântica com tabela hash implementada; geração de código intermediário ainda não implementada.
+> **Status do Projeto:** 🚧 Em desenvolvimento — análise léxica, análise sintática descendente recursiva e **análise semântica com tabela de símbolos hash implementadas**. O projeto **não utiliza AST** e **não executa programas Pascal**. A geração de código intermediário ainda não foi implementada.
 
-Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Universidade Católica de Pernambuco (UNICAP), sob orientação do professor **Robson Lins**.
+Projeto acadêmico em **C11**, desenvolvido na disciplina **Construção de Compiladores** da Universidade Católica de Pernambuco (**UNICAP**), sob orientação do professor **Robson Lins**.
 
 ---
 
 # 📌 Tópicos
 
 :small_blue_diamond: [Sobre o Projeto](#️-sobre-o-projeto)  
-:small_blue_diamond: [Objetivos da Parte 1](#-objetivos-da-parte-1)  
+:small_blue_diamond: [Objetivos](#-objetivos)  
 :small_blue_diamond: [Estrutura do Projeto](#️-estrutura-do-projeto)  
 :small_blue_diamond: [Organização dos Arquivos](#-organização-dos-arquivos)  
 :small_blue_diamond: [Fluxo do Projeto](#-fluxo-do-projeto)  
@@ -37,6 +37,7 @@ Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Univ
 :small_blue_diamond: [Compilação com Makefile](#84-compilação-com-makefile)  
 :small_blue_diamond: [Testando o Analisador](#9--testando-o-analisador)  
 :small_blue_diamond: [Suíte de Testes](#96-suíte-automatizada)  
+:small_blue_diamond: [Parte 2 — Análise Semântica](#-parte-2--análise-semântica-com-tabela-hash)  
 :small_blue_diamond: [Resumo das Responsabilidades](#10--resumo-das-responsabilidades)  
 :small_blue_diamond: [Escopo](#-escopo)  
 :small_blue_diamond: [Referência](#-referência)  
@@ -46,12 +47,15 @@ Projeto desenvolvido para a disciplina **Construção de Compiladores**, da Univ
 
 # ⁉️ Sobre o Projeto
 
-Este repositório reúne as **Partes 1 e 2 do Projeto de Compiladores**, cujo objetivo é aplicar conceitos fundamentais de construção de compiladores por meio do desenvolvimento das duas primeiras etapas de um compilador para uma versão simplificada da linguagem Pascal, denominada **micro-Pascal**.
+Este repositório reúne as **Partes 1 e 2 do Projeto de Compiladores**, cujo objetivo é aplicar conceitos fundamentais de construção de compiladores por meio do desenvolvimento de um compilador para uma versão simplificada da linguagem Pascal, denominada **micro-Pascal**.
 
-Nesta primeira etapa, o projeto contempla:
+O compilador recebe o caminho de um arquivo `.pas`, identifica os tokens, verifica a gramática e aplica as regras semânticas durante a análise sintática. Um programa aceito termina com código de saída `0`; um erro termina com código diferente de `0` e uma mensagem diagnóstica.
+
+O projeto contempla:
 
 - 🔆 **Analisador Léxico (Lexer)**
-- 🌳 **Analisador Sintático (Parser)**
+- 🌳 **Analisador Sintático (Parser)** descendente recursivo
+- 🧠 **Analisador Semântico**, integrado ao Parser, com **tabela de símbolos hash**
 
 O **Analisador Léxico** recebe o código-fonte e transforma as sequências de caracteres em **tokens**.
 
@@ -59,9 +63,13 @@ O **Analisador Sintático** recebe esses tokens e verifica se eles aparecem em u
 
 Na **Parte 2**, a análise semântica foi integrada ao Parser com uma **tabela de símbolos implementada por tabela hash**, sem construção de árvore sintática abstrata (AST). A geração de código intermediário ainda não está implementada.
 
+Não há menu interativo, entrada de código por `stdin`, geração de AST nem interpretação de `write`.
+
 ---
 
-# 🎯 Objetivos da Parte 1
+# 🎯 Objetivos
+
+**Parte 1**
 
 - Implementar um **Analisador Léxico** para micro-Pascal;
 - reconhecer os tokens especificados no projeto;
@@ -74,56 +82,60 @@ Na **Parte 2**, a análise semântica foi integrada ao Parser com uma **tabela d
 - organizar o projeto separando as responsabilidades de cada módulo;
 - desenvolver a solução utilizando a linguagem **C**.
 
+**Parte 2**
+
+- Implementar uma **tabela de símbolos** com hash e encadeamento para colisões;
+- impedir declarações duplicadas e uso de variáveis não declaradas;
+- validar os tipos de operadores, atribuições e condições;
+- realizar as verificações durante o percurso do Parser, **sem AST**;
+- gerar código intermediário (**pendente**).
+
 ---
 
 # 🗂️ Estrutura do Projeto
 
-A organização atual separa os cabeçalhos em `include/`, as implementações em `src/` e os testes em `testes/`. A pasta `04_limites` não faz parte da suíte atual.
+A organização separa os cabeçalhos em `include/`, as implementações em `src/` e os testes em `test/`, todos dentro de `micropascal-compiler/`.
 
 ```text
-Projeto-de-compiladores/
-└── micropascal-compiler/
-    ├── include/
-    │   ├── token.h
-    │   ├── lexer.h
-    │   ├── parser.h
-    │   ├── semantico.h
-    │   └── tabela_simbolos.h
-    ├── src/
-    │   ├── main.c
-    │   ├── lexer.c
-    │   ├── parser.c
-    │   ├── semantico.c
-    │   └── tabela_simbolos.c
-    ├── testes/
-    │   ├── e1.pas, e2.pas, e3.pas, e5.pas
-    │   ├── exemplo1.pas, exemplo2.pas, teste_lexer.pas
-    │   └── test/
-    │       ├── 01_validos_lexicos_sintaticos/  # 70 arquivos
-    │       ├── 02_erros_sintaticos/          # 76 arquivos
-    │       ├── 03_erros_lexicos/             # 30 arquivos
-    │       ├── 04_semanticos/                # 55 arquivos (001 a 055)
-    │       ├── executar_testes.c
-    │       ├── manifesto.csv                 # único manifesto
-    │       ├── README_test.md
-    │       ├── rodar_testes_completos.bat
-    │       └── rodar_testes_completos.sh
-    ├── rodar_testes.bat
-    ├── rodar_testes.sh
-    ├── Makefile
-    ├── .gitignore
-    └── README.md
+Projeto-de-compiladores-copia/
+├── .vscode/
+├── docs/
+│   └── instrucoes_professor/
+├── micropascal-compiler/
+│   ├── include/
+│   │   ├── token.h
+│   │   ├── lexer.h
+│   │   ├── parser.h
+│   │   ├── tabela_simbolos.h
+│   │   └── semantico.h
+│   ├── src/
+│   │   ├── main.c
+│   │   ├── lexer.c
+│   │   ├── parser.c
+│   │   ├── tabela_simbolos.c
+│   │   └── semantico.c
+│   ├── test/
+│   │   ├── 01_validos_lexicos_sintaticos/
+│   │   ├── 02_erros_sintaticos/
+│   │   ├── 03_erros_lexicos/
+│   │   ├── 04_semanticos/
+│   │   ├── executar_testes.c
+│   │   ├── manifesto.csv
+│   │   ├── README_test.md
+│   │   └── resultado_execucao_NNN.csv
+│   ├── Makefile
+│   ├── rodar_testes_completos.bat
+│   └── rodar_testes_completos.sh
+└── README.md
 ```
 
-Os arquivos de teste originais em `testes/` permanecem separados da suíte automatizada.
+Os relatórios CSV são gerados em `micropascal-compiler/test/`. Os caminhos de entrada do manifesto são relativos a essa pasta.
 
 ---
 
 # 📚 Organização da Documentação
 
 - **`docs/instrucoes_professor/`** — enunciados, requisitos e materiais fornecidos pelo professor.
-- **`docs/documentacao_tecnica/`** — documentação técnica do funcionamento e da implementação do projeto.
-- **`docs/images/`** — imagens e diagramas utilizados nos documentos.
 
 ---
 
@@ -135,7 +147,7 @@ Centraliza a definição dos tipos de token e da estrutura `Token`. Os tokens re
 
 ## `include/lexer.h` e `src/lexer.c`
 
-O cabeçalho declara a interface do analisador léxico; o arquivo `.c` implementa a leitura do arquivo-fonte e a identificação dos lexemas. O Lexer reconhece identificadores, inteiros, reais, caracteres, palavras reservadas, símbolos e operadores; ignora espaços e comentários `//`; e informa erros léxicos.
+O cabeçalho declara a interface do analisador léxico; o arquivo `.c` implementa a leitura do arquivo-fonte e a identificação dos lexemas. O Lexer reconhece identificadores, literais (inteiros, reais e caracteres), palavras reservadas e operadores; ignora espaços e comentários `//`; e informa erros léxicos.
 
 Exemplo:
 
@@ -152,38 +164,35 @@ soma  → identificador
 
 ## `include/parser.h` e `src/parser.c`
 
-O Parser descendente recursivo recebe os tokens do Lexer, verifica a gramática e executa as verificações semânticas durante o reconhecimento, sem construir uma árvore sintática. Suas rotinas correspondem às construções do MicroPascal: programa, declarações, blocos, comandos e expressões. A interface em `parser.h` define os tipos e as funções disponibilizados aos outros módulos.
+O Parser descendente recursivo reconhece programa, declarações, comandos e expressões, e integra as verificações semânticas durante o reconhecimento, sem construir uma árvore sintática.
 
 ## `include/tabela_simbolos.h` e `src/tabela_simbolos.c`
 
-Definem e implementam a tabela de símbolos com **hash e encadeamento para colisões**. Cada entrada registra o nome, o tipo e a linha de declaração de uma variável. O Parser utiliza a tabela para impedir declarações duplicadas e identificar usos de variáveis não declaradas.
+Armazenam nome, tipo e linha de declaração de cada variável. Permitem inserir, buscar e liberar símbolos em uma **tabela hash com colisões tratadas por encadeamento**. O Parser utiliza a tabela para impedir declarações duplicadas e identificar usos de variáveis não declaradas.
 
 ## `include/semantico.h` e `src/semantico.c`
 
-Concentram as regras de compatibilidade de tipos das operações binárias e unárias, atribuições e condições. O tipo `boolean` é usado internamente nas expressões e não pode ser declarado como variável.
+Verificam os tipos de operadores, atribuições e condições. O tipo `boolean` é usado internamente nas expressões e não pode ser declarado como variável.
 
 ## `Makefile`
 
-Automatiza a compilação do projeto com **GCC** e o padrão **C11**. Usa `$(wildcard src/*.c)` para localizar todos os arquivos `.c` da pasta `src/`, sem precisar listar cada fonte manualmente. Os arquivos objeto `.o` são gerados a partir dos fontes, e a ligação produz o executável `micropascal` (normalmente `micropascal.exe` no Windows). A opção `-Iinclude` permite encontrar os cabeçalhos.
-
-Os alvos disponíveis são `all` (padrão) e `clean`; os comandos e as particularidades de Windows estão explicados na seção [8.4 — Compilação com Makefile](#84-compilação-com-makefile).
+Automatiza a compilação do projeto com **GCC** e o padrão **C11**, incluindo automaticamente todos os arquivos `src/*.c`. Os detalhes estão na seção [8.4 — Compilação com Makefile](#84-compilação-com-makefile).
 
 ## `src/main.c`
 
-É o ponto de entrada. Recebe o caminho do arquivo `.pas` pela linha de comando, abre o arquivo, inicializa a análise e informa o resultado por meio do código de saída. **Não existe menu interativo nem leitura do código pela entrada padrão (`stdin`) na versão atual.**
+É o ponto de entrada. Abre o arquivo de entrada recebido pela linha de comando, inicializa e finaliza o Lexer e o Parser e retorna o estado da análise por meio do código de saída. **Não existe menu interativo nem leitura do código pela entrada padrão (`stdin`).**
 
-## `testes/test/executar_testes.c`
+## `test/executar_testes.c`
 
-Executa os casos registrados em `manifesto.csv`, compara o resultado observado com o esperado e gera relatórios CSV numerados, como `resultado_execucao_001.csv` e `resultado_execucao_002.csv`.
+Executa os casos registrados em `manifesto.csv`, compara o resultado observado com a coluna `esperado` e gera relatórios CSV numerados, como `resultado_execucao_001.csv` e `resultado_execucao_002.csv`.
 
 ## Scripts de automação
 
-- `rodar_testes_completos.bat` e `.sh`: compilam e executam a suíte de 231 testes.
-- `rodar_testes.bat` e `.sh`: scripts destinados aos testes originais, separados da suíte completa.
+- `rodar_testes_completos.bat` e `rodar_testes_completos.sh`: compilam o projeto e executam a suíte automatizada.
 
-## `.gitignore`, `.vscode/` e `README.md`
+## `.vscode/` e `README.md`
 
-O `.gitignore` controla quais arquivos gerados não serão versionados; `.vscode/` pode armazenar configurações locais do editor; este README documenta a arquitetura, a linguagem, a compilação e a validação do projeto.
+`.vscode/` pode armazenar configurações locais do editor; este README documenta a arquitetura, a linguagem, a compilação e a validação do projeto.
 
 ---
 
@@ -199,10 +208,10 @@ main.c — abre o arquivo-fonte
 Lexer — reconhece tokens
     │
     ▼
-Parser — verifica a gramática e os tipos
+Parser descendente recursivo — verifica a gramática e os tipos
     │           │
-    │           ├── Tabela hash — declarações e consultas
-    │           └── Semântico — operações, atribuições e condições
+    │           ├── Tabela de símbolos (hash) — declarações e consultas
+    │           └── Regras semânticas — operações, atribuições e condições
     │
     ├── erro léxico, sintático ou semântico → diagnóstico e falha
     ▼
@@ -221,58 +230,19 @@ O Analisador Léxico é responsável por percorrer o código-fonte e identificar
 
 Para cada token reconhecido, o Lexer produz uma estrutura `Token`, que contém o **tipo do token** e seu **lexema**. O Parser consulta essas informações para reconhecer a gramática.
 
-Por exemplo:
+---
 
-```pascal
-contador := 10;
-```
+## 1.1 🔤 Tokens e construções
 
-Quando o Lexer reconhecer `contador`, teremos:
-
-```text
-lexema = "contador"
-tipo   = TOKEN_IDENTIFICADOR
-```
+- **Palavras reservadas:** `program`, `var`, `integer`, `real`, `char`, `begin`, `end`, `if`, `then`, `else`, `while`, `do`, `repeat`, `until`, `write`.
+- **Operadores:** `+`, `-`, `*`, `/`, `div`, `=`, `<>`, `<`, `<=`, `>`, `>=`, `and`, `or`, `not`, `:=`.
+- **Literais:** inteiros, reais e caracteres.
+- **Identificadores.**
+- **Pontuação:** `(`, `)`, `,`, `;`, `:`, `.`.
 
 ---
 
-## 1.1 🔤 Definições Básicas
-
-A especificação considera:
-
-```text
-letra ::= [a-zA-Z_]
-
-digito ::= [0-9]
-```
-
-Essas definições não representam tokens isolados. Elas são utilizadas para descrever a formação de outros tokens.
-
----
-
-## 1.2 🏷️ Identificadores
-
-Um identificador é formado por:
-
-```text
-letra (letra | digito)*
-```
-
-Exemplos:
-
-```text
-nome
-contador
-_var
-valor2
-soma10
-```
-
----
-
-## 1.3 ⚖️ Operadores Relacionais
-
-Os operadores relacionais reconhecidos são:
+## 1.2 ⚖️ Operadores Relacionais
 
 | Operador | Significado |
 |---|---|
@@ -285,12 +255,12 @@ Os operadores relacionais reconhecidos são:
 
 ---
 
-## 1.4 ➕ Operadores Lógico-Aritméticos
+## 1.3 ➕ Operadores Lógico-Aritméticos
 
 | Operador | Categoria |
 |---|---|
 | `+` | soma |
-| `-` | subtração |
+| `-` | subtração / menos unário |
 | `*` | multiplicação |
 | `/` | divisão real |
 | `div` | divisão inteira |
@@ -298,223 +268,27 @@ Os operadores relacionais reconhecidos são:
 | `or` | operador lógico |
 | `not` | operador lógico |
 
-Em micro-Pascal:
-
-```text
-/
-```
-
-representa divisão entre valores reais, enquanto:
-
-```text
-div
-```
-
-representa divisão entre inteiros.
-
 ---
 
-## 1.5 📝 Operador de Atribuição
+## 1.4 📝 Operador de Atribuição
 
-O operador de atribuição é:
-
-```text
-:=
-```
-
-Exemplo:
+O operador de atribuição é `:=`, reconhecido pelo Lexer como um único token.
 
 ```pascal
 contador := 10;
 ```
 
-O Lexer reconhece `:=` como um único token:
+---
 
-```text
-ATRIBUICAO
-```
+## 1.5 🔠 Sensibilidade a Maiúsculas e Minúsculas
+
+A linguagem **micro-Pascal é case-sensitive**: `begin` é reconhecido como palavra reservada, enquanto `Begin` não corresponde à palavra reservada e pode ser reconhecido como identificador.
 
 ---
 
-## 1.6 🔣 Símbolos Especiais
+## 1.6 💬 Comentários
 
-Os seguintes símbolos são reconhecidos individualmente:
-
-```text
-(
-)
-,
-;
-.
-:
-```
-
-Correspondendo aos tokens:
-
-```text
-ABRE_PAR
-FECHA_PAR
-VIRGULA
-PONTO_VIRGULA
-PONTO
-DOIS_PONTOS
-```
-
----
-
-## 1.7 🔑 Palavras Reservadas
-
-As palavras reservadas da linguagem são:
-
-```text
-program
-if
-then
-else
-while
-do
-repeat
-until
-integer
-real
-char
-begin
-end
-write
-var
-```
-
-Além delas, os seguintes operadores também são reconhecidos através de palavras:
-
-```text
-div
-and
-or
-not
-```
-
----
-
-## 1.8 🔢 Literais Inteiros
-
-Um valor inteiro literal é definido por:
-
-```text
-digito+
-```
-
-Exemplos:
-
-```text
-0
-1
-42
-100
-2026
-```
-
-O token correspondente é:
-
-```text
-INTEIRO_LITERAL
-```
-
----
-
-## 1.9 🔢 Literais Reais
-
-Um valor real literal é definido por:
-
-```text
-digito* . digito+
-```
-
-Exemplos:
-
-```text
-3.14
-10.5
-0.25
-.5
-```
-
-O token correspondente é:
-
-```text
-REAL_LITERAL
-```
-
----
-
-## 1.10 🔤 Literais do Tipo `char`
-
-Um literal de caractere possui a estrutura:
-
-```text
-'(letra | digito | \n | \t)'
-```
-
-Exemplos:
-
-```text
-'a'
-'c'
-'0'
-'9'
-'_'
-'\n'
-'\t'
-```
-
-Onde:
-
-- `\n` representa quebra de linha;
-- `\t` representa tabulação.
-
-O token correspondente é:
-
-```text
-CHAR_LITERAL
-```
-
----
-
-## 1.11 🔠 Sensibilidade a Maiúsculas e Minúsculas
-
-A linguagem **micro-Pascal é case-sensitive**.
-
-Isso significa que:
-
-```text
-begin
-```
-
-é reconhecido como palavra reservada.
-
-Porém:
-
-```text
-Begin
-```
-
-não corresponde à palavra reservada `begin` e pode ser reconhecido como identificador.
-
----
-
-## 1.12 ⬜ Caracteres Irrelevantes
-
-O Lexer ignora os seguintes caracteres quando aparecem entre lexemas:
-
-- espaço;
-- `\n` — quebra de linha;
-- `\t` — tabulação;
-- `\r` — retorno de cursor.
-
-Esses caracteres não geram tokens.
-
-### Comentários de linha
-
-O Lexer também ignora comentários iniciados por `//`, até a próxima quebra de linha ou o fim da entrada:
+O Lexer ignora comentários de linha iniciados por `//`:
 
 ```pascal
 x := 10; // comentário ignorado pelo Lexer
@@ -522,35 +296,15 @@ x := 10; // comentário ignorado pelo Lexer
 
 ---
 
-## 1.13 ⚠️ Erros Léxicos
+## 1.7 ⚠️ Erros Léxicos
 
 Um erro léxico ocorre quando o Lexer encontra um caractere que não pode fazer parte de nenhum token válido.
-
-Exemplo:
 
 ```text
 x := 10 $ 2;
 ```
 
-O caractere:
-
-```text
-$
-```
-
-não pertence aos tokens reconhecidos pela linguagem.
-
-O erro é responsabilidade do:
-
-```text
-lexer.c
-```
-
-A mensagem segue o formato:
-
-```text
-Erro léxico no caracter [$]
-```
+O caractere `$` não pertence aos tokens reconhecidos pela linguagem. O erro é responsabilidade do `lexer.c`.
 
 ---
 
@@ -558,258 +312,63 @@ Erro léxico no caracter [$]
 
 O Analisador Sintático verifica se a sequência de tokens produzida pelo Lexer está de acordo com a estrutura gramatical definida para micro-Pascal.
 
-A implementação utiliza um **Parser Descendente Recursivo**.
-
-Nesse modelo, as construções da gramática são representadas por funções. Os nomes abaixo são **nomes conceituais da gramática**, não necessariamente os identificadores das funções no arquivo `parser.c`.
-
-Por exemplo:
-
-```text
-<programa>      → programa()
-<secao_var>     → secao_var()
-<decl_var>      → decl_var()
-<tipo>          → tipo()
-<bloco>         → bloco()
-<comando>       → comando()
-<atribuicao>    → atribuicao()
-<iteracao>      → iteracao()
-<decisao>       → decisao()
-<escrita>       → escrita()
-<expressao>     → expressao()
-```
+A implementação utiliza um **Parser Descendente Recursivo**, no qual cada construção da gramática é representada por uma função. As verificações semânticas são feitas durante esse mesmo percurso.
 
 ---
 
 # 3. 📐 Gramática de micro-Pascal
 
-## 3.1 Programa
+A gramática utiliza uma seção `var` global, sem declaração de variáveis locais em blocos.
 
 ```text
-<programa> ::= program IDENTIFICADOR ; <secao_var> <bloco> .
+programa   ::= program IDENTIFICADOR ; var { declaração } begin { comando } end .
+
+declaração ::= IDENTIFICADOR { , IDENTIFICADOR } : (integer | real | char) ;
+
+comando    ::= bloco ;
+             | IDENTIFICADOR := expressão ;
+             | while expressão do comando
+             | repeat comando until expressão ;
+             | if expressão then comando [else comando]
+             | write ( expressão ) ;
+
+bloco      ::= begin { comando } end
 ```
 
----
-
-## 3.2 Seção de Variáveis
-
-```text
-<secao_var> ::= var {<decl_var>}*
-```
-
----
-
-## 3.3 Declaração de Variáveis
-
-```text
-<decl_var> ::= IDENTIFICADOR {, IDENTIFICADOR}* : <tipo> ;
-```
-
----
-
-## 3.4 Tipos
-
-```text
-<tipo> ::= integer
-         | real
-         | char
-```
-
----
-
-## 3.5 Bloco
-
-```text
-<bloco> ::= begin <lista_comandos> end
-```
-
----
-
-## 3.6 Lista de Comandos
-
-```text
-<lista_comandos> ::= {<comando>}*
-```
-
----
-
-## 3.7 Comandos
-
-```text
-<comando> ::= <bloco> ;
-            | <atribuicao>
-            | <iteracao>
-            | <decisao>
-            | <escrita>
-```
-
----
-
-## 3.8 Atribuição
-
-```text
-<atribuicao> ::= IDENTIFICADOR ":=" <expressao> ;
-```
-
-Exemplo:
-
-```pascal
-x := 10;
-```
-
----
-
-## 3.9 Iteração
-
-```text
-<iteracao> ::= while <expressao> do <comando>
-             | repeat <comando> until <expressao> ;
-```
-
-Exemplo com `while`:
-
-```pascal
-while i < n do
-    i := i + 1;
-```
-
----
-
-## 3.10 Decisão
-
-```text
-<decisao> ::= if <expressao> then <comando>
-            | if <expressao> then <comando> else <comando>
-```
-
-Exemplo:
-
-```pascal
-if x > 10 then
-    write('a');
-else
-    write('b');
-```
-
----
-
-## 3.11 Escrita
-
-```text
-<escrita> ::= write ( <expressao> ) ;
-```
-
-Exemplo:
-
-```pascal
-write(x);
-```
-
----
-
-## 3.12 Expressões
-
-A gramática geral das expressões considera:
-
-```text
-<expressao> ::= <expressao> + <expressao>
-              | <expressao> * <expressao>
-              | <expressao> / <expressao>
-              | <expressao> div <expressao>
-              | <expressao> and <expressao>
-              | <expressao> or <expressao>
-              | <expressao> = <expressao>
-              | <expressao> <> <expressao>
-              | <expressao> <= <expressao>
-              | <expressao> < <expressao>
-              | <expressao> >= <expressao>
-              | <expressao> > <expressao>
-              | <expr_basica>
-```
-
----
-
-## 3.13 Expressões Básicas
-
-```text
-<expr_basica> ::= ( <expressao> )
-                | not <expressao>
-                | INTEIRO_LITERAL
-                | REAL_LITERAL
-                | CHAR_LITERAL
-                | IDENTIFICADOR
-```
-
-Exemplos:
-
-```text
-10
-3.14
-'a'
-x
-(x + 5)
-not x
-```
-
----
-
-O Parser reconhece tanto a subtração binária (`10 - 5`) quanto o **menos unário** (`-5`), desde que os tipos respeitem as regras semânticas.
+O Parser reconhece tanto a subtração binária (`10 - 5`) quanto o **menos unário** (`-5`, `-x`), aceito na segunda etapa, desde que os tipos respeitem as regras semânticas.
 
 ---
 
 # 4. 📊 Precedência e Associatividade
 
-Todos os operadores são considerados **associativos à esquerda**.
-
-A precedência utilizada é:
+O Parser utiliza funções recursivas para os níveis de expressões: **fator**, **termo**, **soma**, **relacional** e **expressão**.
 
 | Nível | Operadores | Precedência |
 |---:|---|---|
 | 1 | `*`, `/`, `div` | maior |
 | 2 | `+`, `-` | |
 | 3 | `=`, `<>`, `<`, `>`, `<=`, `>=` | |
-| 4 | `or`, `and` | menor |
-
-Para respeitar esses níveis, o Parser divide a análise das expressões em diferentes funções:
+| 4 | `and`, `or` | menor |
 
 ```text
-expressao()
+expressão()
       ↓
-expr_logica()
+relacional()
       ↓
-expr_relacional()
+soma()
       ↓
-expr_aditiva()
+termo()
       ↓
-expr_multiplicativa()
-      ↓
-expr_basica()
+fator()
 ```
 
-Por exemplo:
-
-```text
-x + 2 * 5
-```
-
-A multiplicação possui maior precedência.
-
-Portanto, a expressão corresponde a:
-
-```text
-x + (2 * 5)
-```
-
-e não:
-
-```text
-(x + 2) * 5
-```
+Por exemplo, `x + 2 * 5` corresponde a `x + (2 * 5)`, e não a `(x + 2) * 5`.
 
 ---
 
 # 5. 🔗 Integração entre Lexer e Parser
 
-A integração acontece por meio da interface declarada em `include/lexer.h` e da estrutura `Token` definida em `include/token.h`. O Lexer fornece o próximo token; o Parser verifica se ele é o esperado pela gramática e avança para o próximo quando necessário.
+A integração acontece por meio da interface declarada em `include/lexer.h` e da estrutura `Token` definida em `include/token.h`. O Lexer fornece o próximo token; o Parser verifica se ele é o esperado pela gramática e avança quando necessário.
 
 Para a entrada:
 
@@ -817,9 +376,7 @@ Para a entrada:
 contador := 10;
 ```
 
-O Lexer identifica, em sequência, um identificador, o operador de atribuição, um literal inteiro e o ponto e vírgula. O Parser verifica se essa sequência corresponde a um comando de atribuição válido e confere os tipos com o módulo semântico, **sem criar AST**.
-
-A versão atual não depende das antigas variáveis globais `simbolo_lido`, `lexema` e `entrada`, nem da função global `obtenha_simbolo()` descritas na implementação anterior. A localização exata dos campos e das rotinas deve ser consultada nos cabeçalhos atuais.
+O Lexer identifica, em sequência, um identificador, o operador de atribuição, um literal inteiro e o ponto e vírgula. O Parser verifica se essa sequência corresponde a um comando de atribuição válido, consulta a tabela de símbolos e confere os tipos com o módulo semântico, **sem criar AST**.
 
 ---
 
@@ -833,148 +390,61 @@ Erro Sintático
 Erro Semântico
 ```
 
----
-
 ## 6.1 Erro Léxico
 
-Ocorre quando um caractere não pode fazer parte de nenhum token reconhecido.
-
-Exemplo:
+Ocorre quando um caractere não pode fazer parte de nenhum token reconhecido, como `$` em `x := 10 $ 5;`.
 
 ```text
-x := 10 $ 5;
+Caractere inválido → Lexer → Erro léxico
 ```
-
-O caractere `$` não é reconhecido.
-
-Fluxo:
-
-```text
-Caractere inválido
-        ↓
-      Lexer
-        ↓
-   Erro léxico
-```
-
----
 
 ## 6.2 Erro Sintático
 
-Ocorre quando os tokens são válidos individualmente, mas aparecem em uma sequência que não corresponde à gramática.
-
-Exemplo:
+Ocorre quando os tokens são válidos individualmente, mas aparecem em uma sequência que não corresponde à gramática. Em `x := ;`, após `:=` a gramática exige uma expressão.
 
 ```text
-x := ;
+Tokens válidos em ordem inválida → Parser → Erro sintático
 ```
 
-O Lexer consegue reconhecer:
-
-```text
-IDENTIFICADOR
-ATRIBUICAO
-PONTO_VIRGULA
-```
-
-Porém, após `:=`, a gramática exige uma expressão.
-
-O Parser identifica o problema.
-
-Fluxo:
-
-```text
-Tokens válidos
-em ordem inválida
-        ↓
-      Parser
-        ↓
-  Erro sintático
-```
-
----
-
-## 6.3 Erro semântico
+## 6.3 Erro Semântico
 
 Ocorre quando a estrutura é sintaticamente válida, mas viola regras de declaração ou de tipos. Exemplos: declarar `x` duas vezes, usar uma variável não declarada, atribuir um valor `real` a uma variável `integer` ou usar uma condição não booleana em `if`, `while` ou `repeat`.
+
+Quando existem vários erros, o primeiro encontrado pode impedir que erros posteriores sejam reportados.
 
 ---
 
 # 7. 💻 Exemplos de Código micro-Pascal
 
-## 7.1 Teste de Paridade
+## 7.1 Exemplo válido
 
 ```pascal
-program TestaParidade;
+program Teste;
 var
-    n : integer;
+    x : integer;
 begin
-    n := 2 * 13 + 5;
-
-    if n = (n div 2)*2 then
-        write('p');
-    else
-        write('i');
+    x := -5;
+    if x < 0 then
+        write(x);
 end.
 ```
 
 Esse exemplo utiliza:
 
-- declaração de programa;
-- declaração de variável;
+- declaração de programa e de variável;
 - tipo `integer`;
-- atribuição;
-- multiplicação;
-- soma;
-- divisão inteira;
+- atribuição com menos unário;
 - expressão relacional;
 - `if`;
-- `else`;
-- `write`;
-- literal do tipo `char`.
+- `write`.
 
----
-
-## 7.2 Soma dos Primeiros Números Ímpares
-
-```pascal
-program SomaImpares;
-var
-    n : integer;
-    i, proximoImpar, soma : integer;
-begin
-    n := 4;
-    i := 0;
-    soma := 0;
-
-    while i < n do
-    begin
-        proximoImpar := 2*i + 1;
-        soma := soma + proximoImpar;
-        i := i + 1;
-    end;
-
-    write(soma);
-    write('\n');
-end.
-```
-
-Esse exemplo utiliza:
-
-- múltiplas declarações;
-- blocos `begin` e `end`;
-- `while`;
-- operador `<`;
-- operações aritméticas;
-- atribuições;
-- `write`;
-- literal `'\n'`.
+O comando `write(x)` é **validado**, mas não imprime o valor de `x`: o projeto não é um interpretador.
 
 ---
 
 # 8. 🛠️ Compilação e Execução
 
-**Todos os comandos abaixo devem ser executados dentro de `micropascal-compiler/`.** É necessário ter o GCC instalado e disponível no terminal. O `Makefile` fornecido já utiliza `src/*.c` para compilar os módulos atuais.
+**Todos os comandos abaixo devem ser executados dentro de `micropascal-compiler/`.** É necessário ter o GCC com suporte a C11 instalado e disponível no terminal.
 
 ## 8.1 Windows — PowerShell
 
@@ -987,7 +457,7 @@ gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src\*.c -o micropascal.exe
 **Analisar um arquivo `.pas`:**
 
 ```powershell
-.\micropascal.exe .\testes\exemplo1.pas
+.\micropascal.exe .\test\04_semanticos\001_valido_aritmetica.pas
 $LASTEXITCODE
 ```
 
@@ -995,23 +465,17 @@ $LASTEXITCODE
 
 ```bash
 gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src/*.c -o micropascal
-./micropascal testes/exemplo1.pas
+./micropascal test/04_semanticos/001_valido_aritmetica.pas
 echo $?
 ```
 
 ## 8.3 Como criar um teste manual
 
-Crie e salve um arquivo `testes/teste_manual.pas` contendo um programa MicroPascal completo. Depois execute:
-
-```powershell
-.\micropascal.exe .\testes\teste_manual.pas
-```
-
-O argumento do programa deve ser o caminho de um arquivo existente. **Não use `Ctrl+Z`, `Ctrl+D`, redirecionamento `<` nem `Get-Content` para enviar o código ao analisador atual.** O código de saída `0` indica sucesso; um valor diferente de `0` indica erro. A análise bem-sucedida normalmente não imprime mensagem.
+Crie e salve um arquivo `.pas` contendo um programa MicroPascal completo e passe o caminho desse arquivo ao executável. O argumento deve ser o caminho de um arquivo existente; o código não é lido por `stdin`. O código de saída `0` indica sucesso; um valor diferente de `0` indica erro.
 
 ## 8.4 Compilação com Makefile
 
-O projeto possui um `Makefile` na raiz de `micropascal-compiler/`, que automatiza a compilação e evita repetir manualmente o comando do GCC. É necessário ter **GCC** e **Make** instalados e disponíveis no terminal. Execute os comandos a partir dessa pasta.
+Alternativamente, use o `Makefile` na raiz de `micropascal-compiler/`. É necessário ter **GCC** e **Make** instalados.
 
 **Compilar o projeto:**
 
@@ -1019,33 +483,7 @@ O projeto possui um `Makefile` na raiz de `micropascal-compiler/`, que automatiz
 make
 ```
 
-O alvo padrão `all` gera o executável `micropascal` (em ambientes Windows com GCC, normalmente `micropascal.exe`). O Makefile utiliza as seguintes configurações:
-
-```makefile
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -Iinclude
-SRC = $(wildcard src/*.c)
-OBJ = $(SRC:.c=.o)
-TARGET = micropascal
-```
-
-- `CC`: seleciona o compilador GCC.
-- `CFLAGS`: ativa avisos, usa C11 e inclui os cabeçalhos da pasta `include/`.
-- `SRC`: localiza automaticamente todos os arquivos `src/*.c`, presentes no diretório `src/`.
-- `OBJ`: define os arquivos objeto `.o` correspondentes.
-- `TARGET`: define o nome-base do executável.
-
-**Executar a análise no Linux/macOS:**
-
-```bash
-./micropascal testes/exemplo1.pas
-```
-
-**Executar no Windows (PowerShell):**
-
-```powershell
-.\micropascal.exe .\testes\exemplo1.pas
-```
+O `Makefile` inclui automaticamente todos os arquivos `src/*.c`, sem precisar listar cada fonte manualmente.
 
 **Limpar os arquivos compilados:**
 
@@ -1053,7 +491,7 @@ TARGET = micropascal
 make clean
 ```
 
-O alvo `clean` executa `rm -f` para remover os arquivos `.o` e o arquivo com o nome `micropascal`. **No Windows**, esse comando requer um ambiente com `rm` disponível (por exemplo, Git Bash/MSYS2) e pode precisar de ajuste para remover `micropascal.exe`, pois o alvo `clean` atual menciona somente `micropascal`. O Makefile não precisa ser modificado para reconhecer novos arquivos `.c` em `src/`.
+No Windows, `make clean` pode depender de comandos Unix (por exemplo, disponíveis no Git Bash/MSYS2).
 
 ---
 
@@ -1071,7 +509,7 @@ begin
 end.
 ```
 
-Salve em um arquivo `.pas` e execute o compilador passando o caminho. O programa deve terminar com código `0`. Não há impressão de árvore nesta versão.
+O programa deve terminar com código `0`.
 
 ## 9.2 ❌ Erro sintático
 
@@ -1098,92 +536,7 @@ end.
 
 O caractere `$` não é reconhecido pela linguagem e deve provocar um erro léxico.
 
-## 9.4 ❌ Conteúdo após `end.`
-
-```pascal
-program Teste;
-var
-begin
-end.
-write(10);
-```
-
-A entrada deve ser rejeitada, pois o ponto final encerra o programa MicroPascal.
-
-## 9.5 Casos relevantes para regressão
-
-| Caso | Comportamento esperado |
-|---|---|
-| `var` sem declarações | Aceito pela gramática utilizada |
-| Ausência de `var` | Erro sintático |
-| `repeat` com um único comando | Aceito |
-| `repeat` com bloco `begin ... end;` | Aceito |
-| `x := 10 - 5;` | Aceito (subtração binária) |
-| `x := -5;` | Aceito quando `x` é `integer` (menos unário permitido) |
-| `write('_');` | Aceito |
-| `write('\n');` e `write('\t');` | Aceitos |
-| Comentário `//` | Ignorado pelo Lexer |
-| Conteúdo após `end.` | Erro sintático |
-
-## 9.6 Suíte automatizada
-
-A suíte contém **231 arquivos `.pas`**, organizados por pasta de origem. A categoria esperada de cada teste é determinada pelo único `testes/test/manifesto.csv`, não apenas pelo nome da pasta.
-
-| Pasta | Arquivos |
-|---|---:|
-| `01_validos_lexicos_sintaticos` | 70 |
-| `02_erros_sintaticos` | 76 |
-| `03_erros_lexicos` | 30 |
-| `04_semanticos` | 55 |
-| **Total** | **231** |
-
-O executor distingue `ACEITA`, `LEXICO`, `SINTATICO` e `SEMANTICO` (além de categorias auxiliares de erro). Alguns testes históricos podem ter uma classificação diferente do nome da pasta, porque a análise semântica detecta um erro antes de outro erro posterior.
-
-**Windows:**
-
-```powershell
-.\testes\test\rodar_testes_completos.bat
-```
-
-**Linux/macOS:**
-
-```bash
-bash testes/test/rodar_testes_completos.sh
-```
-
-O executor compara os resultados com `testes/test/manifesto.csv` e cria relatórios numerados:
-
-```text
-testes/test/resultado_execucao_001.csv
-testes/test/resultado_execucao_002.csv
-...
-```
-
-O histórico não é sobrescrito. Consulte [`testes/test/README_test.md`](testes/test/README_test.md) para instruções específicas da suíte.
-
-
-# 🧠 Parte 2 — Análise Semântica com Tabela Hash
-
-A análise semântica foi integrada à análise sintática descendente recursiva. O projeto **não utiliza AST**.
-
-## Tabela de símbolos
-
-A tabela hash registra nome, tipo e linha de declaração. A inserção verifica duplicidade e a consulta verifica se uma variável foi declarada antes do uso. A gramática atual possui uma única seção `var`, sem declarações locais em blocos.
-
-## Regras de tipos
-
-- Tipos declarados: `integer`, `real` e `char`; `boolean` é interno às expressões.
-- `+`, `-` e `*`: operandos numéricos do mesmo tipo, com resultado desse tipo. Para `+` e `-`, `char` combinado com `integer` também resulta em `char`.
-- `div`: somente `integer` com `integer`, resultado `integer`.
-- `/`: somente `real` com `real`, resultado `real`.
-- `<`, `<=`, `>` e `>=`: operandos numéricos do mesmo tipo, resultado `boolean`.
-- `=` e `<>`: operandos do mesmo tipo, inclusive `char` e `boolean`, resultado `boolean`.
-- `and` e `or`: somente operandos `boolean`, resultado `boolean`.
-- Menos unário: somente tipos numéricos, preservando o tipo. `not`: operando `boolean` (regra adotada pelo projeto; confirmar com o professor se necessário).
-- Atribuição: tipo da variável de destino igual ao tipo da expressão.
-- Condições de `if`, `while` e `repeat`: obrigatoriamente `boolean`.
-
-## Exemplo de erro semântico
+## 9.4 ❌ Erro semântico
 
 ```pascal
 program Exemplo;
@@ -1194,7 +547,68 @@ begin
 end.
 ```
 
-O programa tem estrutura sintática válida, mas a atribuição de `real` a `integer` deve ser rejeitada.
+A estrutura é válida, mas a atribuição de `real` a `integer` deve ser rejeitada.
+
+## 9.6 Suíte automatizada
+
+A suíte utiliza `micropascal-compiler/test/manifesto.csv` e os arquivos `.pas` das quatro subpastas de `test/`. O executor compara o resultado observado com a coluna `esperado` do manifesto.
+
+| Pasta | Conteúdo |
+|---|---|
+| `01_validos_lexicos_sintaticos` | programas válidos léxica e sintaticamente |
+| `02_erros_sintaticos` | casos com erros sintáticos |
+| `03_erros_lexicos` | casos com erros léxicos |
+| `04_semanticos` | casos válidos e inválidos da análise semântica |
+
+Os scripts podem ser executados a partir de `micropascal-compiler/` ou chamados pelo caminho completo a partir de outros diretórios.
+
+**Windows:**
+
+```powershell
+.\rodar_testes_completos.bat
+```
+
+**Linux/macOS:**
+
+```bash
+sh rodar_testes_completos.sh
+```
+
+**Execução manual:**
+
+```bash
+gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude src/*.c -o micropascal
+gcc -std=c11 -Wall -Wextra -Wpedantic test/executar_testes.c -o executar_testes
+./executar_testes ./micropascal
+```
+
+Os relatórios são gravados em `test/resultado_execucao_NNN.csv`, sem sobrescrever relatórios anteriores. Consulte [`README_test.md`](micropascal-compiler/test/README_test.md) para mais informações.
+
+---
+
+# 🧠 Parte 2 — Análise Semântica com Tabela Hash
+
+A análise semântica foi integrada à análise sintática descendente recursiva. O projeto **não utiliza AST**.
+
+## Tabela de símbolos
+
+A tabela hash registra nome, tipo e linha de declaração. A inserção verifica duplicidade e a consulta verifica se uma variável foi declarada antes do uso. Como a gramática possui uma única seção `var` global, a implementação usa uma única tabela de símbolos.
+
+## Regras de tipos
+
+- **Declarações:** não pode haver identificador duplicado; toda variável usada deve ter sido declarada.
+- **Tipos:** `integer`, `real`, `char`; `boolean` existe internamente como resultado de comparações e operações lógicas, mas não é declarável em `var`.
+- **`+` e `-`:** operandos numéricos do mesmo tipo produzem esse tipo; combinações `char`/`integer` produzem `char`.
+- **`*`:** operandos numéricos do mesmo tipo, resultado desse tipo.
+- **`div`:** apenas `integer div integer`, resultado `integer`.
+- **`/`:** apenas `real / real`, resultado `real`.
+- **`<`, `<=`, `>` e `>=`:** operandos numéricos do mesmo tipo, resultado `boolean`.
+- **`=` e `<>`:** operandos do mesmo tipo (inclusive `char` e `boolean`), resultado `boolean`.
+- **`and`, `or`:** dois operandos `boolean`, resultado `boolean`.
+- **Menos unário:** operando numérico, mantendo seu tipo.
+- **`not`:** operando `boolean` e resultado `boolean` (regra adotada na implementação; não explicitada nas imagens da seção 2.2).
+- **Atribuição:** tipo do destino exatamente igual ao tipo da expressão; não há conversão automática.
+- **Condições:** expressões de `if`, `while` e `repeat` devem ser `boolean`.
 
 **Ainda não implementado:** geração de código intermediário.
 
@@ -1204,32 +618,26 @@ O programa tem estrutura sintática válida, mas a atribuição de `real` a `int
 
 | Arquivo | Responsabilidade |
 |---|---|
-| `include/token.h` | Definir tokens e sua representação |
-| `include/lexer.h` | Declarar a interface do Lexer |
-| `include/parser.h` | Declarar a interface do Parser |
-| `include/semantico.h` | Declarar as verificações semânticas |
-| `include/tabela_simbolos.h` | Declarar a tabela hash de símbolos |
-| `src/lexer.c` | Reconhecer lexemas e produzir tokens |
-| `src/parser.c` | Validar a gramática e integrar verificações semânticas |
-| `src/semantico.c` | Validar tipos de operadores, atribuições e condições |
-| `src/tabela_simbolos.c` | Inserir, buscar e liberar símbolos na tabela hash |
-| `src/main.c` | Receber o arquivo-fonte e coordenar a análise |
+| `include/token.h` | Tipos de token e estrutura `Token` |
+| `include/lexer.h` / `src/lexer.c` | Reconhecer identificadores, literais, palavras reservadas, operadores e erros léxicos |
+| `include/parser.h` / `src/parser.c` | Reconhecer programa, declarações, comandos e expressões; integrar as verificações semânticas |
+| `include/tabela_simbolos.h` / `src/tabela_simbolos.c` | Armazenar nome, tipo e linha de declaração; inserir, buscar e liberar símbolos em tabela hash com colisões por encadeamento |
+| `include/semantico.h` / `src/semantico.c` | Verificar tipos de operadores, atribuições e condições |
+| `src/main.c` | Abrir o arquivo de entrada, inicializar/finalizar Lexer e Parser e retornar o estado da análise |
 | `Makefile` | Automatizar a compilação dos módulos C e a limpeza dos artefatos |
-| `testes/test/executar_testes.c` | Executar os testes e registrar os resultados |
-| `testes/test/manifesto.csv` | Registrar as classificações esperadas |
-| `testes/test/README_test.md` | Documentar a suíte automatizada |
-| Scripts `.bat` e `.sh` | Automatizar compilação e testes |
+| `test/executar_testes.c` | Comparar resultados com o manifesto e gerar relatórios |
+| `test/manifesto.csv` | Registrar as classificações esperadas |
+| `test/README_test.md` | Documentar a suíte automatizada |
+| `rodar_testes_completos.bat` / `.sh` | Automatizar compilação e testes |
 | `README.md` | Documentar o projeto |
 
 A distinção principal entre os componentes é:
 
 ```text
-LEXER:  "Qual token foi reconhecido?"
-PARSER: "Essa sequência de tokens segue a gramática?"
+LEXER:     "Qual token foi reconhecido?"
+PARSER:    "Essa sequência de tokens segue a gramática?"
 SEMÂNTICA: "Os identificadores e tipos são válidos?"
 ```
-
-A análise semântica com tabela hash está implementada; a geração de código intermediário ainda não está implementada.
 
 ---
 
@@ -1237,7 +645,7 @@ A análise semântica com tabela hash está implementada; a geração de código
 
 > **Parte 1 — implementada:** análise léxica e análise sintática descendente recursiva.
 
-> **Parte 2 — parcialmente implementada:** análise semântica com tabela de símbolos (hash), sem AST; geração de código intermediário pendente.
+> **Parte 2 — parcialmente implementada:** análise semântica com tabela de símbolos (hash) e validação de tipos, sem AST; geração de código intermediário pendente.
 
 O projeto é um analisador/compilador acadêmico em desenvolvimento e **não interpreta nem executa** os comandos Pascal.
 
@@ -1245,13 +653,13 @@ O projeto é um analisador/compilador acadêmico em desenvolvimento e **não int
 
 # 📖 Referência
 
-Documento-base fornecido para a atividade:
+Os documentos originais do professor, quando presentes no repositório, ficam em `docs/instrucoes_professor/` e devem ser consultados para o enunciado completo:
 
 📄 **[MicroPascal — Projeto de Compiladores: Primeira Parte](docs/instrucoes_professor/MicroPascal-parte1.pdf)**
 
 📄 **[MicroPascal — Projeto de Compiladores: Segunda Parte](docs/instrucoes_professor/MicroPascal-parte2.pdf)**
 
-O documento apresenta as especificações da **Parte 1**, contemplando o Lexer e o Parser. A Parte 2 será adaptada à orientação atualizada do professor: tabela de símbolos (hash), sem AST. A documentação original da Parte 2 permanece arquivada como referência histórica e pode conter requisitos anteriores.
+A implementação atual segue a orientação posterior do professor de **não utilizar AST**.
 
 ---
 
