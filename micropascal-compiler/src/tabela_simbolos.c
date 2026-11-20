@@ -78,75 +78,29 @@ int tabela_inserir(TabelaSimbolos *t, const char *nome,
 
 
 void tabela_liberar(TabelaSimbolos *t) {
-    /* TODO: liberar todos os simbolos das listas encadeadas. */
+ if (t == NULL)
+        return;
 
-    /*
-     * Libera a memoria dos simbolos armazenados
-     * na tabela hash.
-     *
-     * PARAMETRO:
-     *   t - tabela a ser esvaziada.
-     *
-     * ROTEIRO:
-     *   1. Verificar se t e diferente de NULL.
-     *   2. Percorrer todas as posicoes do vetor.
-     *   3. Para cada posicao, obter o primeiro
-     *      simbolo da lista encadeada.
-     *   4. Enquanto existir um simbolo:
-     *      a) Guardar o endereco do proximo.
-     *      b) Liberar o simbolo atual com free.
-     *      c) Avancar para o proximo simbolo.
-     *   5. Atribuir NULL a posicao do vetor
-     *      depois de liberar toda a lista.
-     *
-     * IMPORTANTE:
-     *   Guardar o proximo elemento antes de
-     *   liberar o simbolo atual.
-     *
-     *   Depois de chamar free, nao acessar
-     *   os campos do simbolo liberado.
-     *
-     *   Nao chamar free(t) quando a propria
-     *   tabela nao foi alocada com malloc.
-     *
-     *   Esta funcao deve ser chamada quando
-     *   a analise do programa terminar.
-     */
+    for (size_t i = 0; i < TAM_TABELA; ++i) {
+        Simbolo *atual = t->vetor[i];
+        while (atual != NULL) {
+            Simbolo *proximo = atual->prox;
+            free(atual);
+            atual = proximo;
+        }
+        t->vetor[i] = NULL;
+    }
 }
 
 
 const char *tipo_nome(TipoDado tipo) {
-    /* TODO: retornar a descricao textual do tipo informado. */
-
-    /*
-     * Converte um TipoDado para um texto legivel,
-     * utilizado principalmente em mensagens de erro.
-     *
-     * PARAMETRO:
-     *   tipo - valor do enum TipoDado.
-     *
-     * RETORNO:
-     *   String constante correspondente ao tipo.
-     *
-     * ROTEIRO:
-     *   1. Utilizar switch para identificar o tipo.
-     *   2. Retornar o texto correspondente:
-     *
-     *      TIPO_INTEIRO  -> "integer"
-     *      TIPO_REAL     -> "real"
-     *      TIPO_CHAR     -> "char"
-     *      TIPO_BOOLEANO -> "boolean"
-     *      TIPO_INVALIDO -> "invalido"
-     *
-     *   3. Prever um retorno padrao para
-     *      valores desconhecidos.
-     *
-     * IMPORTANTE:
-     *   A string retornada e constante.
-     *   Nao deve ser modificada nem liberada.
-     *
-     *   Esta funcao nao realiza verificacoes
-     *   semanticas. Apenas converte o tipo
-     *   para uma representacao textual.
-     */
+    switch (tipo) {
+        case TIPO_INTEIRO:  return "integer";
+        case TIPO_REAL:     return "real";
+        case TIPO_CHAR:     return "char";
+        case TIPO_BOOLEANO: return "boolean";
+        case TIPO_INVALIDO: return "invalido";
+        default:            return "desconhecido";
+    }
+        
 }
