@@ -13,5 +13,5 @@ gcc -std=c11 -Wall -Wextra -Wpedantic test\executar_testes.c -o executar_testes.
 if errorlevel 1 exit /b 1
 
 echo Executando os testes do manifesto...
-.\executar_testes.exe .\micropascal.exe
+.\executar_testes.exe .\micropascal.exe relatorio_testes.csv
 exit /b %errorlevel%
